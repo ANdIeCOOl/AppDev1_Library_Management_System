@@ -1,3 +1,5 @@
+from datetime import date
+
 #---------------------------------
 """
 URL : https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#many-to-many
@@ -52,6 +54,8 @@ class Users(db.Model, UserMixin):
     password_hash = db.Column(db.String(length = 256) , nullable = False) 
     books = db.relationship("Books",secondary = users_books )
     role = db.Column(db.String(10) , default = "User")
+    feedback = db.relationship("Feedbacks")
+    restrictions = db.relationship("Restrictions")
 
     def __repr__(self) -> str:
         return f"Name: {self.name}; Books:{self.books} ; Role:{self.role}"
@@ -67,9 +71,12 @@ class Books(db.Model):
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.String(length = 60) , nullable = False )
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
-    books = db.relationship("Books",secondary = users_books )
     visits =  db.Column(db.String(length = 60) , nullable = False )
     name =  db.Column(db.String(length = 60) , nullable = False )
+    feedback = db.relationship("Feedbacks")
+    restrictions = db.relationship("Restrictions")
+    requests = db.relationship("Requests")
+
 
     def __repr__(self) -> str:
         return f"Name: {self.title}; Author:{self.author} ; Readers:{self.current_readers}"
@@ -83,29 +90,28 @@ class Sections(db.Model):
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.String(length = 60) , nullable = False )
     visits =  db.Column(db.String(length = 60) , nullable = False )
-    current_readers =  db.Column(db.String(length = 60) , nullable = False )
     name =  db.Column(db.String(length = 60) , nullable = False )
 
 class Feedbacks(db.Model):
     __tablename__ = "feedbacks"
     id = db.Column(db.Integer(), primary_key = True)
-    user_id =  db.Column(db.Integer(), nullable = False)
-    book_id =  db.Column(db.Integer(), nullable = False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
     feedback=  db.Column(db.String(length = 300))
     rating =  db.Column(db.Integer() )
 
 class Requests(db.Model):
     __tablename__ = "requests"
     id = db.Column(db.Integer(), primary_key = True)
-    book_id =  db.Column(db.String(length = 60) , nullable = False )
-    date =  db.Column(db.String(length = 60) , nullable = False )
-    status =  db.Column(db.String(length = 60) , nullable = False )
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime("%d/%m/%Y")  )
+    status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
 
 class Retrictions(db.Model):
     __tablename__ = "restrictions"
     id = db.Column(db.Integer(), primary_key = True)
-    user_id =  db.Column(db.String(length = 60) , nullable = False )
-    book_id =  db.Column(db.String(length = 60) , nullable = False )
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
 
 
 
