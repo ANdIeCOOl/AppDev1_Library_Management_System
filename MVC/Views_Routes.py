@@ -1,21 +1,10 @@
 from MVC import app
 from MVC import Controller_Forms
-from flask import render_template, redirect, url_for, flash, request
+from MVC import Model
 
 @app.route("/" , methods = ['GET' , 'POST'])
 def index():
-    form = Controller_Forms.LoginForm()
-    if form.validate_on_submit:
-        username = form.username.data
-        password = form.password.data
-        print("--------\n---------")
-        print(username,password)
-        #return redirect(url_for("index"))
-        form.username.data = None
-        form.password.data = None
-
-
-    return render_template("index.html", form = form)
+    render_template("index.html")
 
 
 @app.route("/Admin<ID>") #LVL 1
