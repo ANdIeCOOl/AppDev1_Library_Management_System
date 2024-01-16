@@ -46,9 +46,9 @@ users_books = db.Table(
     db.Column("book_id", db.ForeignKey("books.id"),primary_key=True),
 )
 
-
-class Users(db.Model, UserMixin):
+class  Users(db.Model, UserMixin):
     __tablename__ = "users"
+    username = db.Column(db.String(length = 30),nullable = False , unique = True)
     id = db.Column(db.Integer(), primary_key = True)
     name =  db.Column(db.String(length = 60) , nullable = False )
     password_hash = db.Column(db.String(length = 256) , nullable = False) 
@@ -69,7 +69,7 @@ class Books(db.Model):
     title =  db.Column(db.String(length = 60) , nullable = False )
     author =  db.Column(db.String(length = 60) , nullable = False )
     description =  db.Column(db.String(length = 60) , nullable = False )
-    content =  db.Column(db.String(length = 60) , nullable = False )
+    content =  db.Column(db.LargeBinary() , nullable = False )
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
     visits =  db.Column(db.String(length = 60) , nullable = False )
     name =  db.Column(db.String(length = 60) , nullable = False )
