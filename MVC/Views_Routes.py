@@ -1,110 +1,200 @@
-from MVC import app
+from MVC import app,db
 from MVC import Controller_Forms
 from MVC import Model
+from flask import render_template, url_for,redirect,flash,request
+from flask_login import login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash 
+
+#LANDING PAGE-------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 
 @app.route("/" , methods = ['GET' , 'POST'])
 def index():
     render_template("index.html")
 
 
-@app.route("/Admin<ID>") #LVL 1
-def AdminHomePage(ID):
-    return render_template("AdminHome.html", 
-                        Link_To_Books = f"/Admin{ID}/Books",
-                        Link_To_Sections = f"/Admin{ID}/Sections",
-                        Link_To_Requests = f"/Admin{ID}/Requests",
-                        Link_To_Analytics = f"/Admin{ID}/Analytics",
-                        Link_To_Users = f"/Admin{ID}/Users")
 
 
-#Requests Page From Admin LVL 2
-@app.route("/Admin<ID>/Requests")
-def AdminRequestsPage(ID):
-    return render_template("AdminRequests.html", 
-                        Link_To_PendingRequests = f"/Admin{ID}/Requests/Pending",
-                        Link_To_RequestHistory = f"/Admin{ID}/Requests/History")
-
-#PenindingRequests Page From Admin #LVL 3
-@app.route("/Admin<ID>/Requests/Pending")
-def AdminPendingRequestsPage(ID):
-    return render_template("AdminPendingRequests.html")
-
-#Requests History Page From Admin#LVL 3
-@app.route("/Admin<ID>/Requests/History")
-def AdminHistoryRequestsPage(ID):
-    return render_template("AdminRequestsHistory.html")
-
-#Request Analytics #LVL 3
+#--------------------------------------------------------------------------------------
+#LOGIN-------------------------------------------------------------------------------
 
 
 
+@app.route("/login")
+def login():
+    form = Controller_Forms.LoginForm()
+    if form.validate_on_submit():
+        user = Model.Users.query.filter_by(username = form.username.data).first()
+        if user:    
+            if check_password_hash(user.password_hash,form.password.data):
+                login_user(user)
+                flash("Login Successfull" , category="success")
+                return redirect(url_for("Home"))
+            else:
+                flash("Please check entered Password and try again" , category="danger")
+                #need to render something here right <><><>><><
+
+    return render_template("login.html",form = form)
+
+
+
+#--------------------------------------------------------------------------------------
+#LOGOUT-------------------------------------------------------------------------------
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user
+    flash("You have been successfully logged out", category="success")
+    return redirect(url_for("/"))
+
+#--------------------------------------------------------------------------------------
+#HOME OR DASHBOARD-------------------------------------------------------------------------------
+
+
+
+@app.route("/Home") #LVL 1
+@login_required
+def Home():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminHome.html")
+    else:
+        return render_template("UserHome.html")
+
+
+#--------------------------------------------------------------------------------------
+#REQUESTS-------------------------------------------------------------------------------
+
+"""
+LVL 1
+"""
+@app.route("/Requests")
+@login_required
+def Requests():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminRequests.html")
+    else:
+        return render_template("UserRequests.html")
+    
+
+"""
+LVL 2
+"""
+#Pending Requests
+
+@app.route("/Requests/Pending")
+@login_required
+def PendingRequests():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminRequestsPending.html")
+    else:
+        return render_template("UserRequestsPending.html")
+
+
+#Request history for analytics maybe in the future  
+
+@app.route("/Requests/History")
+@login_required
+def RequestsHistory():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminRequestsHistory.html")
+    else:
+        return render_template("UserRequestsHistory.html")
+
+
+#--------------------------------------------------------------------------------------
+#ANALYTICS-------------------------------------------------------------------------------
+"""
+LVL 1
+"""
+@app.route("/Analytics" , methods = ['GET' , 'POST'])
+@login_required
+def Analytics():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminAnalytics.html")
+    else:
+        return render_template("UserAnalytics.html")
+
+"""
+LVL 2
+"""  
+#ALL USERS ANALYTICS
+@app.route("/Analytics/Users" , methods = ['GET' , 'POST'])
+@login_required
+def UsersAnalytics():
+    pass
+
+#System Analytics Visits CLicks etc
+@app.route("/Analytics/System" , methods = ['GET' , 'POST'])
+@login_required
+def SystemAnalytics():
+    pass
+#Book Analytics highest rating, most requested etc
+@app.route("/Analytics/Books" , methods = ['GET' , 'POST'])
+@login_required
+def BooksAnalytics():
+    pass
+#Section Analytics highest rating, most visted etc
+@app.route("/Analytics/Sections" , methods = ['GET' , 'POST'])
+@login_required
+def SectionsAnalytics():
+    pass
+
+#--------------------------------------------------------------------------------------
+#ALL USERS ACCESS FOR ADMIN--------------------------------------------------
+
+@app.route("/Admin/Users")
+def AdminUserProfile():
+    return render_template("AllUserProfile.html")
+
+
+#--------------------------------------------------------------------------------------
+#SECTIONS-------------------------------------------------------------------------------
+
+@app.route("/Sections" , methods = ['GET' , 'POST'])
+@login_required
+def Sections():
+    if (current_user.role = "Administrator"):
+        return render_template("AdminSections.html")
+    else:
+        return render_template("UserSections.html")
+    
 
 
 
 
-#Analytics Page From Admin
-@app.route("/Admin<ID>/Analytics")
-def AdminAnalyticsPage(ID):
-    return render_template("AdminAnalytics.html")
-
-#Overall User Analytics
-# Indivdual
-#Book Analytics
-#Section Analytics
-#Request Analytics #LVL 3
-
-
-
-
-
-
-
-# Users Page From Admin
-@app.route("/Admin<ID>/Users") #LVL 2
-def AdminUserPage(ID):
-    #From DB Sent All user data to display
-    return render_template("AdminUsers.html")
-
-@app.route("/Admin<ID>/Users/User<User_ID>")
-def AdminUserProfile(ID,User_ID):
-    return render_template("UserProfile.html")
-
-
-#Overall User Analytics #LVL 3
-
-
-
-
-
-
-
-
-#Sections Page From Admin
-@app.route("/Admin<ID>/Sections") #LVL2
-def AdminSectionsPage(ID):
-    return render_template("AdminSections.html")
-
-@app.route("/Admin<ID>/Sections/<SectionID>") #LVL 3 
-def AdminParticularSection(ID,SectionID):
-    return render_template("AdminParticularSection.html")
-
-
-
-
-
-
-#Books Page From Admin
-@app.route("/Admin<ID>/Books") #LVL 2
-def AdminBooksPage(ID):
-    return render_template("AdminBooks.html")
-
+#--------------------------------------------------------------------------------------
+#BOOKS
+@app.route("/Books" , methods = ['GET' , 'POST'])
+@login_required
+def Analytics():
+    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
+    try:
+        books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter}")
+    except:
+        pass
+    if (current_user.role = "Administrator"):
+        return render_template("AdminBooks.html")
+    else:
+        return render_template("UserBooks.html")
 
 #Book Info Page From Admin
-@app.route("/Admin<ID>/Books/<BookID>") #LVL 3
-def AdminBooksInfoPage(ID,BookID):
-    #Have to send DataFrom DB HERE and use for loop to render all books in DB
-    return render_template("AdminBookInfo.html")
+@app.route("/Books/<int:BookID>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id
+@login_required
+def Analytics(Book_ID): 
+    
+    book = Model.Books.query.filter_by( id = int(Book_ID)).first()
+    bookFeedback = Model.Feedbacks.query.filter_by(book_id = int(Book_ID))
+    feedbacks = []
+    
+    for feedback in bookFeedback:
+        feedbacks.append(feedback)
 
+    if (current_user.role = "Administrator"):
+        return render_template("AdminBooks.html",book= book,feedbacks = feedbacks)
+    else:
+        return render_template("UserBooks.html",book = book)
 
 
 
@@ -113,43 +203,3 @@ def AdminBooksInfoPage(ID,BookID):
 # ALL USER CODE
 
 #####################################################################
-
-
-
-@app.route("/User<ID>")
-def UserHomePage(ID):
-    return render_template("UserHome.html",
-                           Link_to_Sections=f"/User{ID}/Sections",
-                           Link_to_UserAnalytics= f"/User{ID}/Analytics",
-                           Link_to_Books = f"/User{ID}/Books")
-
-
-#Requests and Books Page From User
-@app.route("/User<ID>/Books")
-def UserRequestsPage(ID):
-    return render_template("UserBooks.html")
-
-@app.route("/User<ID>/Books/<Book_ID>")
-def UserBookInfoPage(ID,Book_ID):
-    return render_template("UserBookInfo.html")
-
-
-
-#Analytics Page From User
-@app.route("/User<ID>/Analytics")
-def UserAnalyticsPage(ID):
-    return render_template("UserAnalytics.html")
-
-
-
-
-
-
-#Sections Page From User
-@app.route("/User<ID>/Sections")
-def UserSectionsPage(ID):
-    return render_template("UserSections.html")
-
-@app.route("/User<ID>/Sections/<Section_ID>")
-def UserParticularSectionsPage(ID,Section_ID):
-    return render_template("UserParticularSection.html")

@@ -76,6 +76,7 @@ class Books(db.Model):
     feedback = db.relationship("Feedbacks")
     restrictions = db.relationship("Restrictions")
     requests = db.relationship("Requests")
+    rating = db.Column(db.Integer() , default = 5)
 
 
     def __repr__(self) -> str:
