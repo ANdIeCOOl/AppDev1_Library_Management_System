@@ -26,11 +26,8 @@ def index():
 def login():
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
-        #user = Model.Users.query.filter_by(username = form.username.data).first()
+        user = Model.Users.query.filter_by(username = form.username.data).first()
         #DB CONFIG
-        user = form.username.data
-        password = form.password.data
-        print(user , password)
         if user:              
             """ if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)

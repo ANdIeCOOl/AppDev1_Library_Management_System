@@ -3,6 +3,7 @@ from flask import Flask
 #Flask is an microwebframework used to building web applications fast
 
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 """
 Flask-SQLAlchemy is an extension for Flask that adds support for SQLAlchemy to 
@@ -56,8 +57,9 @@ app.config is configuration of the Flask app
 """
 app.config['SECRET_KEY'] = '123456'
 
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LMS.db'
+#app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LMS.db'
 
+app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(app.instance_path, 'LMS.db')
 
 #----------------------------------------------------------------------------------------
 """
@@ -79,8 +81,10 @@ db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login_page"
+login_manager.login_view = "login"
 login_manager.login_message_category = "info"
+
+
 
 #------------------------------------------------------------------
 from MVC import Views_Routes #sometimes you need it , sometimes you don't?

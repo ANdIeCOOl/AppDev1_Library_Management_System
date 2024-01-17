@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body> <!-- Still need get specific Admin ID and then render URl-->
-    <a href={{Link_To_Books}}>Books</a> 
-    <a href={{Link_To_Sections}}>Sections</a>
-    <a href={{Link_To_Analytics}}>Analytics</a>
-    <a href={{Link_To_Users}}>Users</a>
-    <a href="{{Link_To_Requests}}">Requests</a>
-</body>
-</html>
+{% extends  'baseHome.html' %}
+{% block content%}
+<div class="container-fluid">
+    LibMain Analytics
+</div>
+    
+<div class="container-fluid">
+    Users
+</div>
+   
 
-<!-- Still need to actually give the routes from app.py-->
+<div class="container-fluid">
+    Books
+</div>
+
+<div class="container-fluid">
+    Sections
+</div>
+{% endblock %}
