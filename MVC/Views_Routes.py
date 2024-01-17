@@ -10,8 +10,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route("/" , methods = ['GET' , 'POST'])
 def index():
-    return render_template("index.html")
-
+    if current_user.is_authenticated:
+        return redirect(url_for("Home"))
+    else:
+       return render_template("index.html") 
 
 
 
@@ -27,17 +29,18 @@ def login():
         #user = Model.Users.query.filter_by(username = form.username.data).first()
         #DB CONFIG
         user = form.username.data
-        password = form.username.data
+        password = form.password.data
         print(user , password)
-        if user:    
-            if check_password_hash(user.password_hash,form.password.data):
+        if user:              
+            """ if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)
                 flash("Login Successfull" , category="success")
                 return redirect(url_for("Home"))
             else:
                 flash("Please check entered Password and try again" , category="danger")
-                #need to render something here right <><><>><><
-
+                #need to render something here right <><><>><><"""
+            form.username.data = None
+            form.username.data= None 
     return render_template("login.html",form = form)
 
 
@@ -68,6 +71,10 @@ def register():
             #else:
                # flash("Please check entered Password and try again" , category="danger")
                # #need to render something here right <><><>><><
+        form.name = None
+        form.username = None
+        form.password = None
+        form.confirm_password= None
         pass
     return render_template("register.html",form = form)
 
