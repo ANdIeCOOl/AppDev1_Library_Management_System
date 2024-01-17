@@ -42,8 +42,6 @@ def login():
             else:
                 flash("Please check entered Password and try again" , category="danger")
                 #need to render something here right <><><>><><"""
-            form.username.data = None
-            form.username.data= None 
     return render_template("login.html",form = form)
 
 
@@ -60,26 +58,43 @@ def logout():
     return redirect(url_for("index"))
 
 #REGISTER-------------------
-
 @app.route("/register" , methods = ['GET','POST'])
 def register():
     form = Controller_Forms.RegisterForm()
+    print("I AM HERE ----\n---------1 ---\n----------\n----------")
     if form.validate_on_submit():
-        user = Model.Users.query.filter_by(username = form.username.data).first()
+        print("I AM HERE ----\n---------2 ---\n----------\n----------")
+        user = Users.query.filter_by(username = form.username.data).first()
+        
         if user:    
-            if check_password_hash(user.password_hash,form.password.data):
-                login_user(user)
+            flash("Username is already taken", category="info")
+            print("I AM HERE ----\n---------3 ---\n----------\n----------")
+            return render_template("register.html",form = form)
+        else:
+            if (form.password.data == form.confirm_password.data):
                 flash("Registration Successfull" , category="success")
+                New_User = Users(username=form.username.data,
+                                 name = form.name.data,
+                                 password_hash =generate_password_hash(form.password.data)
+                                )
+                              
+                            
+                db.session.add(New_User)
+                db.session.commit() 
+                login_user(New_User)
+                flash("Registration Successfull" , category="success")
+                print("I AM HERE ----\n---------4 ---\n----------\n----------")
                 return redirect(url_for("Home"))
             else:
-                flash("Please check entered Password and try again" , category="danger")
-               # #need to render something here right <><><>><><
-        form.name = None
-        form.username = None
-        form.password = None
-        form.confirm_password= None
-        pass
+                flash("Passwords did not match" , category="warning")
+                print("I AM HERE ----\n---------5 ---\n----------\n----------")
+                return render_template("register.html",form = form)
+            
+    else:
+        print("I AM HERE ----\n---------7 ---\n----------\n----------")         
+    print("I AM HERE ----\n---------6 ---\n----------\n----------")
     return render_template("register.html",form = form)
+
 
 #--------------------------------------------------------------------------------------
 #HOME OR DASHBOARD-------------------------------------------------------------------------------
