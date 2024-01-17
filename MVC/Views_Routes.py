@@ -1,8 +1,11 @@
-from MVC import app,db
+from MVC import app
 from MVC import Controller_Forms
-from MVC import Model
+from MVC.Model import Users,Books,Sections,Requests,Restrictions,Feedbacks,users_books
+from MVC import db
+
+
 from flask import render_template, url_for,redirect,flash,request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required, current_user, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash 
 
 #LANDING PAGE-------------------------------------------------------------------------------
@@ -26,10 +29,13 @@ def index():
 def login():
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
-        user = Model.Users.query.filter_by(username = form.username.data).first()
+        #with db.engine.connect() as conn:
+         #   user = conn.execute(f"SELECT * FROM users WHERE username = {form.username.data}")
+       # user = db.engine.execute(f"SELECT * FROM users WHERE username = {form.username.data}")
+        user = Users.query.filter_by(username = form.username.data).first()
         #DB CONFIG
         if user:              
-            """ if check_password_hash(user.password_hash,form.password.data):
+            if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)
                 flash("Login Successfull" , category="success")
                 return redirect(url_for("Home"))
@@ -49,9 +55,9 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user
+    logout_user()
     flash("You have been successfully logged out", category="success")
-    return redirect(url_for("/"))
+    return redirect(url_for("index"))
 
 #REGISTER-------------------
 
@@ -59,14 +65,14 @@ def logout():
 def register():
     form = Controller_Forms.RegisterForm()
     if form.validate_on_submit():
-       # user = Model.Users.query.filter_by(username = form.username.data).first()
-        #if user:    
-        #   if check_password_hash(user.password_hash,form.password.data):
-         #       login_user(user)
-           #     flash("Registration Successfull" , category="success")
-             #   return redirect(url_for("Home"))
-            #else:
-               # flash("Please check entered Password and try again" , category="danger")
+        user = Model.Users.query.filter_by(username = form.username.data).first()
+        if user:    
+            if check_password_hash(user.password_hash,form.password.data):
+                login_user(user)
+                flash("Registration Successfull" , category="success")
+                return redirect(url_for("Home"))
+            else:
+                flash("Please check entered Password and try again" , category="danger")
                # #need to render something here right <><><>><><
         form.name = None
         form.username = None

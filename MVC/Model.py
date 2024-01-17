@@ -1,3 +1,7 @@
+
+#------------
+
+
 from datetime import date
 
 #---------------------------------
@@ -27,7 +31,7 @@ give functionality to the database
 #-----------------------------------------------------------
 @login_manager.user_loader
 def load_user(user_id):
-    return Users.get(user_id)
+    return Users.query.get(int(user_id))
 
 """
 URL:https://flask-login.readthedocs.io/en/latest/
@@ -60,7 +64,7 @@ class  Users(db.Model, UserMixin):
     def __repr__(self) -> str:
         return f"Name: {self.name}; Books:{self.books} ; Role:{self.role}"
     
-
+  
 
 
 class Books(db.Model):
@@ -108,13 +112,11 @@ class Requests(db.Model):
     date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime("%d/%m/%Y")  )
     status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
 
-class Retrictions(db.Model):
+class Restrictions(db.Model):
     __tablename__ = "restrictions"
     id = db.Column(db.Integer(), primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
-
-
 
 
 

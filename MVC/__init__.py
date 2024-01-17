@@ -59,7 +59,7 @@ app.config['SECRET_KEY'] = '123456'
 
 #app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LMS.db'
 
-app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(app.instance_path, 'LMS.db')
+app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///LMS.db'
 
 #----------------------------------------------------------------------------------------
 """
