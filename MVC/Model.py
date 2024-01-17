@@ -25,9 +25,9 @@ give functionality to the database
 
 
 #-----------------------------------------------------------
-#@login_manager.user_loader
-#def load_user(user_id):
-#    return User.get((int)user_id)
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.get(user_id)
 
 """
 URL:https://flask-login.readthedocs.io/en/latest/

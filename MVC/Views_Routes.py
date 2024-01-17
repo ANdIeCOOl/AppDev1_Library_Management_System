@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route("/" , methods = ['GET' , 'POST'])
 def index():
-    render_template("index.html")
+    return render_template("index.html")
 
 
 
@@ -20,11 +20,15 @@ def index():
 
 
 
-@app.route("/login")
+@app.route("/login" , methods = ['GET','POST'])
 def login():
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
-        user = Model.Users.query.filter_by(username = form.username.data).first()
+        #user = Model.Users.query.filter_by(username = form.username.data).first()
+        #DB CONFIG
+        user = form.username.data
+        password = form.username.data
+        print(user , password)
         if user:    
             if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)
@@ -49,6 +53,24 @@ def logout():
     flash("You have been successfully logged out", category="success")
     return redirect(url_for("/"))
 
+#REGISTER-------------------
+
+@app.route("/register" , methods = ['GET','POST'])
+def register():
+    form = Controller_Forms.RegisterForm()
+    if form.validate_on_submit():
+       # user = Model.Users.query.filter_by(username = form.username.data).first()
+        #if user:    
+        #   if check_password_hash(user.password_hash,form.password.data):
+         #       login_user(user)
+           #     flash("Registration Successfull" , category="success")
+             #   return redirect(url_for("Home"))
+            #else:
+               # flash("Please check entered Password and try again" , category="danger")
+               # #need to render something here right <><><>><><
+        pass
+    return render_template("register.html",form = form)
+
 #--------------------------------------------------------------------------------------
 #HOME OR DASHBOARD-------------------------------------------------------------------------------
 
@@ -57,7 +79,7 @@ def logout():
 @app.route("/Home") #LVL 1
 @login_required
 def Home():
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminHome.html")
     else:
         return render_template("UserHome.html")
@@ -72,7 +94,7 @@ LVL 1
 @app.route("/Requests")
 @login_required
 def Requests():
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminRequests.html")
     else:
         return render_template("UserRequests.html")
@@ -86,7 +108,7 @@ LVL 2
 @app.route("/Requests/Pending")
 @login_required
 def PendingRequests():
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminRequestsPending.html")
     else:
         return render_template("UserRequestsPending.html")
@@ -97,7 +119,7 @@ def PendingRequests():
 @app.route("/Requests/History")
 @login_required
 def RequestsHistory():
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminRequestsHistory.html")
     else:
         return render_template("UserRequestsHistory.html")
@@ -111,7 +133,7 @@ LVL 1
 @app.route("/Analytics" , methods = ['GET' , 'POST'])
 @login_required
 def Analytics():
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminAnalytics.html")
     else:
         return render_template("UserAnalytics.html")
@@ -143,10 +165,16 @@ def SectionsAnalytics():
 
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
-
+@login_required
 @app.route("/Admin/Users")
-def AdminUserProfile():
-    return render_template("AllUserProfile.html")
+def ALLUsers():
+    if current_user.role == "Administrator":
+        users = db.engine.execute("SELECT * FROM users")
+        return render_template("AllUserProfile.html",users = users)
+    else:
+        logout_user
+        flash("Access Denied", category="danger")
+        return redirect(url_for("/"))
 
 
 #--------------------------------------------------------------------------------------
@@ -155,10 +183,28 @@ def AdminUserProfile():
 @app.route("/Sections" , methods = ['GET' , 'POST'])
 @login_required
 def Sections():
-    if (current_user.role = "Administrator"):
-        return render_template("AdminSections.html")
+    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
+    try:
+        sections = db.engine.execute(f"SELECT * FROM sections ORDERBY {orderFilter} ;")
+    except:
+        pass
+    if (current_user.role =="Administrator"):
+        return render_template("AdminSections.html",sections = sections)
     else:
-        return render_template("UserSections.html")
+        return render_template("UserSections.html",sections = sections)
+    
+@app.route("/Sections/<int:ID>" , methods = ['GET' , 'POST'])
+@login_required
+def Section(ID):
+    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
+    try:
+        books = db.engine.execute(f"SELECT * FROM books WHERE section_id = {ID} ORDERBY {orderFilter} ;")
+    except:
+        pass
+    if (current_user.role == "Administrator"):
+        return render_template("AdminBooks.html",books = books)
+    else:
+        return render_template("UserBooks.html",books = books)
     
 
 
@@ -168,21 +214,21 @@ def Sections():
 #BOOKS
 @app.route("/Books" , methods = ['GET' , 'POST'])
 @login_required
-def Analytics():
+def Books():
     orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
     try:
-        books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter}")
+        books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter} ;")
     except:
         pass
-    if (current_user.role = "Administrator"):
+    if (current_user.role =="Administrator"):
         return render_template("AdminBooks.html")
     else:
         return render_template("UserBooks.html")
 
-#Book Info Page From Admin
+#Book Info
 @app.route("/Books/<int:BookID>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id
 @login_required
-def Analytics(Book_ID): 
+def Book(Book_ID): 
     
     book = Model.Books.query.filter_by( id = int(Book_ID)).first()
     bookFeedback = Model.Feedbacks.query.filter_by(book_id = int(Book_ID))
@@ -191,7 +237,7 @@ def Analytics(Book_ID):
     for feedback in bookFeedback:
         feedbacks.append(feedback)
 
-    if (current_user.role = "Administrator"):
+    if (current_user.role == "Administrator"):
         return render_template("AdminBooks.html",book= book,feedbacks = feedbacks)
     else:
         return render_template("UserBooks.html",book = book)
