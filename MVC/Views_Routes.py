@@ -207,11 +207,11 @@ def SectionsAnalytics():
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
 @login_required
-@app.route("/Admin/Users")
+@app.route("/Users")
 def ALLUsers():
     if current_user.role == "Administrator":
-        users = db.engine.execute("SELECT * FROM users")
-        return render_template("AllUserProfile.html",users = users)
+        users = db.session.execute(db.select(Users)).scalars()
+        return render_template("AllUserProfiles.html",users = users)
     else:
         logout_user
         flash("Access Denied", category="danger")
@@ -256,15 +256,21 @@ def Section(ID):
 @app.route("/Books" , methods = ['GET' , 'POST'])
 @login_required
 def Books():
-    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
+    form = Controller_Forms.UploadBookForm()
+    """orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
     try:
         books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter} ;")
     except:
-        pass
-    if (current_user.role =="Administrator"):
-        return render_template("AdminBooks.html")
+        pass"""
+    
+    if form.validate_on_submit() or request.method == "POST":
+        book = Books(title = , author = ,description = ,content= ,)
+
     else:
-        return render_template("UserBooks.html")
+        if (current_user.role =="Administrator"):
+            return render_template("AdminBooks.html",form = form)
+        else:
+            return render_template("UserBooks.html")
 
 #Book Info
 @app.route("/Books/<int:BookID>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id

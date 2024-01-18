@@ -73,7 +73,7 @@ class Books(db.Model):
     title =  db.Column(db.String(length = 60) , nullable = False )
     author =  db.Column(db.String(length = 60) , nullable = False )
     description =  db.Column(db.String(length = 60) , nullable = False )
-    content =  db.Column(db.LargeBinary() , nullable = False )
+    content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
     visits =  db.Column(db.String(length = 60) , nullable = False )
     name =  db.Column(db.String(length = 60) , nullable = False )

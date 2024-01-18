@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField,IntegerField
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField,FileRequired,FileAllowed
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 
 class LoginForm(FlaskForm):
@@ -29,9 +29,9 @@ class UploadBookForm(FlaskForm):
     title =  StringField("Title", validators=[DataRequired()])
     author =  StringField("Author", validators=[DataRequired()])
     description =  StringField("Description", validators=[DataRequired()])
-    content =   FileField("Description", validators=[DataRequired()])
+    content =   FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png'], 'Images only!')])
 	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
-    section_id =   IntegerField("Description", validators=[DataRequired()])
+    section_id =   IntegerField("SectionID")
     submit = SubmitField("Upload Book")  
 	
 class EditBookForm(FlaskForm):

@@ -1,19 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>VIEWING BOOKS </h1>
-    <!-- Need DB data and a for loop to render all the books-->
-    <p>book1</p>
-    <div>Book 2 </div>
-    <div> Book 3 </div> <div> Book 4 </div>
-    <h2>Add books HEre</h2>
-    <h3>Link to each book </h3>
-    
+{% extends  'base.html' %}
+{%block title%} 
+Profiles
+{% endblock%}
+{% block content%}
+<h1 style="color: white;" class="display-1">Library</h1>
+    <div class="container">
+        <div class="row">
+            <!--{% for book in books %}
+        
 
-</body>
-</html>
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <div class="card-body">
+                          <h5 class="card-title">{{book.title}}</h5>
+                          <p class="card-text"> {{book.description}}</p>
+                          <a href="#" class="btn btn-secondary  stretched-link">View book</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}-->
+            <div class="col-sm mt-3 mb-3">
+                <div class="card" style="width: 18rem;">
+                    <img src="static\animation.gif" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title">Add Book</h5>
+                      <p class="card-text"> 
+
+                        <form method = "POST" enctype="multipart/form-data">
+                            {{form.hidden_tag()}}
+                            
+                            {{ form.title.label() }}
+                            {{ form.title(class="form-control", placeholder="Enter title")}}
+                    
+                            {{ form.author.label() }}
+                            {{ form.author(class="form-control", placeholder="Enter Author name") }}
+                    
+                            {{ form.description.label() }}
+                            {{ form.description(class="form-control", placeholder="Password") }}
+                    
+                            {{ form.section_id.label() }}
+                            {{ form.section_id(class="form-control", placeholder="Not necessary") }}
+
+                            {{ form.content.label() }}
+                            {{ form.content() }}
+                    
+                            <br>
+                            {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+                        </form>
+
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+        
+        </div>
+    </div> 
+
+
+
+{% endblock %}
