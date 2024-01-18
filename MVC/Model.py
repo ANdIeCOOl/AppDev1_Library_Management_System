@@ -84,7 +84,7 @@ class Books(db.Model):
 
 
     def __repr__(self) -> str:
-        return f"Name: {self.title}; Author:{self.author} ; Readers:{self.current_readers}"
+        return f"Name: {self.title}; Author:{self.author} "
 
 
 class Sections(db.Model):
@@ -111,6 +111,9 @@ class Requests(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
     date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime("%d/%m/%Y")  )
     status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
+
+    def __repr__(self) -> str:
+        return f"Book: {Books.query.get(self.book_id)}; date:{self.date} ; Status:{self.status}"
 
 class Restrictions(db.Model):
     __tablename__ = "restrictions"

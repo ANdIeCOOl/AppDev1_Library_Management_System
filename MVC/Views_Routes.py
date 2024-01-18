@@ -1,6 +1,8 @@
 from MVC import app
 from MVC import Controller_Forms
 from MVC.Model import Users,Books,Sections,Requests,Restrictions,Feedbacks,users_books
+from MVC.Model import Sections as SectionTable
+from MVC.Model import Requests as RequestsTable
 from MVC import db
 
 
@@ -27,6 +29,7 @@ def index():
 
 @app.route("/login" , methods = ['GET','POST'])
 def login():
+
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
         #with db.engine.connect() as conn:
@@ -136,7 +139,8 @@ LVL 1
 @login_required
 def Requests():
     if (current_user.role == "Administrator"):
-        return render_template("AdminRequests.html")
+        requests = db.session.execute(db.select(RequestsTable)).scalars()
+        return render_template("AdminRequests.html" , requests = requests)
     else:
         return render_template("UserRequests.html")
     
@@ -224,11 +228,7 @@ def ALLUsers():
 @app.route("/Sections" , methods = ['GET' , 'POST'])
 @login_required
 def Sections():
-    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
-    try:
-        sections = db.engine.execute(f"SELECT * FROM sections ORDERBY {orderFilter} ;")
-    except:
-        pass
+    sections = db.session.execute(db.select(SectionTable)).scalars()
     if (current_user.role =="Administrator"):
         return render_template("AdminSections.html",sections = sections)
     else:
@@ -252,6 +252,9 @@ def Section(ID):
 
 
 #--------------------------------------------------------------------------------------
+#Need to update books and blob datatype also need to modify database so save this for 
+    # later
+
 #BOOKS
 @app.route("/Books" , methods = ['GET' , 'POST'])
 @login_required
@@ -264,7 +267,10 @@ def Books():
         pass"""
     
     if form.validate_on_submit() or request.method == "POST":
-        book = Books(title = , author = ,description = ,content= ,)
+        book = Books(title = form.title.data , 
+                     author = form.author.data ,
+                     description =form.description.data ,
+                     content=form.content.data )
 
     else:
         if (current_user.role =="Administrator"):
@@ -277,8 +283,8 @@ def Books():
 @login_required
 def Book(Book_ID): 
     
-    book = Model.Books.query.filter_by( id = int(Book_ID)).first()
-    bookFeedback = Model.Feedbacks.query.filter_by(book_id = int(Book_ID))
+    book = db.Books.query.filter_by( id = int(Book_ID)).first()
+    bookFeedback = db.Feedbacks.query.filter_by(book_id = int(Book_ID))
     feedbacks = []
     
     for feedback in bookFeedback:

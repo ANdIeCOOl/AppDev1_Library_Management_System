@@ -1,13 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-     <h1>VIEWING Requests </h1>
-    <a href={{Link_To_PendingRequests}}>Pending Requests</a> 
-    <a href={{Link_To_RequestHistory}}>Requests History</a> 
-</body>
-</html>
+{% extends  'baseHome.html' %}
+{% block content%}
+<h1 style="color: white;" class="display-1">Requests</h1>
+    {% for request in requests %}
+        
+            <div class="container-fluid" style="color: white;">
+                <div class="card mb-3" style=" background: linear-gradient(180deg, black, rgb(90, 90, 90))" >
+                    <div class="row g-0">
+                    
+                    <div class="col-md-8">
+                        <div class="card-body" style = "color: white;" >
+                        <h5 class="card-title ">
+                            <div class="btn btn-sm btn-warning" >
+                            {{request.status}}
+                            </div>
+                        </h5>
+                        <h3 class="card-title">
+                           {{request.book_id}}
+
+                        </h3>
+                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+
+                    </div>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+
+    {% endfor %}
+
+
+
+
+
+{% endblock %}
+  
+
+                         -->
