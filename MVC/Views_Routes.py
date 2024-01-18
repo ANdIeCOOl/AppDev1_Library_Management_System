@@ -60,7 +60,9 @@ def logout():
 #REGISTER-------------------
 @app.route("/register" , methods = ['GET','POST'])
 def register():
+    
     form = Controller_Forms.RegisterForm()
+    print(form.validate_on_submit)
     print("I AM HERE ----\n---------1 ---\n----------\n----------")
     if form.validate_on_submit():
         print("I AM HERE ----\n---------2 ---\n----------\n----------")
