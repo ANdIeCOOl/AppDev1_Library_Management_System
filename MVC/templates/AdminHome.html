@@ -1,19 +1,79 @@
 {% extends  'baseHome.html' %}
 {% block content%}
-<div class="container-fluid">
-    LibMain Analytics
+<div class="container-fluid" style="color:white;">
+    
+    <div class="card" style=" background: linear-gradient(180deg, black, grey)">
+        <div class="card-body" style = "color: lightgrey;">
+          
+                <h5 class="card-title" >LibMain Analytics</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                <a href="{{url_for('Analytics')}}" class="btn  stretched-link">View All Analytics</a>
+            </div>
+    </div>
 </div>
     
-<div class="container-fluid">
-    Users
+<div class="container-fluid" style="color: white;">
+    
+    <div class="card" style=" background: linear-gradient(180deg, black,rgb(103, 103, 103))">
+        <div class="card-body" style = "color: rgb(231, 230, 230);">
+          <h5 class="card-title">Users</h5>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="{{url_for('ALLUsers')}}" class="card-link" style="color: white;">View all Users</a>
+        </div>
+      </div>
+    
 </div>
    
 
-<div class="container-fluid">
-    Books
+<div class="container-fluid" style="color: white;">
+    <div class="card" style=" background: linear-gradient(180deg, black, grey)">
+        <div class="card-body" style = "color: lightgrey;">
+          <h5 class="card-title">Books</h5>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="{{url_for('Books')}}" class="card-link" style="color: white;">View all Books</a>
+          
+        </div>
+      </div>
 </div>
 
-<div class="container-fluid">
-    Sections
+<div class="container-fluid" style="color: white;">
+    
+    <div class="card" style=" background: linear-gradient(180deg, black, darkgrey)">
+        <div class="card-body" style = "color: lightgrey;">
+          <h5 class="card-title">Sections</h5>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="{{url_for('Sections')}}" class="card-link" style="color: white;">View all Sections</a>
+        </div>
+      </div>
+</div>
+
+<div class="container-fluid" style="color: white;">
+    
+    <div class="card" style=" background: linear-gradient(180deg, black, darkgrey)">
+        <div class="card-body" style = "color: lightgrey;">
+          <h5 class="card-title">Requests</h5>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="{{url_for('Requests')}}"class="card-link" style="color: white;">View all Requests</a>
+        </div>
+      </div>
+</div>
+
+<div class="container-fluid" style="color: white;">
+    <div class="card mb-3" style=" background: linear-gradient(180deg, black, lightgrey)" >
+        <div class="row g-0">
+        
+        <div class="col-md-8">
+            <div class="card-body" style = "color: white;" >
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <img src="..." class="img-fluid rounded-start" alt="...">
+        </div>
+
+        </div>
+    </div>
 </div>
 {% endblock %}

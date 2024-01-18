@@ -42,6 +42,10 @@ def login():
             else:
                 flash("Please check entered Password and try again" , category="danger")
                 #need to render something here right <><><>><><"""
+        else:
+            flash("User does not exist",category="warning")
+            return redirect(url_for("login"))
+
     return render_template("login.html",form = form)
 
 
@@ -57,24 +61,28 @@ def logout():
     flash("You have been successfully logged out", category="success")
     return redirect(url_for("index"))
 
-#REGISTER-------------------
+#REGISTER-------------------# still need to check why form.validate on submit not working
 @app.route("/register" , methods = ['GET','POST'])
 def register():
-    
     form = Controller_Forms.RegisterForm()
-    print(form.validate_on_submit)
+    print("TESTING FORM VALIDATION--------------\n---------------")
+    print(form.validate_on_submit())
+    print("TESTING FORM VALIDATION--------------\n---------------")
     print("I AM HERE ----\n---------1 ---\n----------\n----------")
-    if form.validate_on_submit():
+    if form.validate_on_submit() or request.method == "POST":
+    # ):
+    #if request.method == "POST":
+
         print("I AM HERE ----\n---------2 ---\n----------\n----------")
         user = Users.query.filter_by(username = form.username.data).first()
         
         if user:    
             flash("Username is already taken", category="info")
             print("I AM HERE ----\n---------3 ---\n----------\n----------")
-            return render_template("register.html",form = form)
+            return redirect(url_for("register"))
+            
         else:
             if (form.password.data == form.confirm_password.data):
-                flash("Registration Successfull" , category="success")
                 New_User = Users(username=form.username.data,
                                  name = form.name.data,
                                  password_hash =generate_password_hash(form.password.data)
@@ -90,10 +98,8 @@ def register():
             else:
                 flash("Passwords did not match" , category="warning")
                 print("I AM HERE ----\n---------5 ---\n----------\n----------")
-                return render_template("register.html",form = form)
-            
-    else:
-        print("I AM HERE ----\n---------7 ---\n----------\n----------")         
+                return redirect(url_for("register"))
+    print("I AM HERE ----\n---------7 ---\n----------\n----------")         
     print("I AM HERE ----\n---------6 ---\n----------\n----------")
     return render_template("register.html",form = form)
 
@@ -106,6 +112,14 @@ def register():
 @app.route("/Home") #LVL 1
 @login_required
 def Home():
+    print("--------------------\n'''''''''''''''''\n-------")
+    print(current_user.name)
+    print(current_user.username)
+    print(current_user.role)
+    print(current_user.id)
+    user = Users.query.filter_by(username = current_user.username).first()
+    print(user)
+    print("--------------------\n'''''''''''''''''\n-------")
     if (current_user.role == "Administrator"):
         return render_template("AdminHome.html")
     else:
