@@ -75,8 +75,7 @@ class Books(db.Model):
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
-    visits =  db.Column(db.String(length = 60) , nullable = False )
-    name =  db.Column(db.String(length = 60) , nullable = False )
+    visits =  db.Column(db.Integer() , nullable = False )
     feedback = db.relationship("Feedbacks")
     restrictions = db.relationship("Restrictions")
     requests = db.relationship("Requests")
