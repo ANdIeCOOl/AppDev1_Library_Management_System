@@ -38,7 +38,12 @@ class EditBookForm(FlaskForm):
 	pass
 
 class EditUserForm(FlaskForm):
-	pass
+	name = StringField("Name", validators=[DataRequired()])
+	profile_pic = FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png'])])
+	username = StringField("Username", validators=[DataRequired()])
+	password = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
+	confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
+	submit = SubmitField("Register")
 
 
 

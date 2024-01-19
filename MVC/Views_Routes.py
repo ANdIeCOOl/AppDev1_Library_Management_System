@@ -229,10 +229,11 @@ LVL 2
 @login_required
 @app.route("/Users/<int:user_id>")
 def ModifyUser(user_id):
+    form = Controller_Forms.EditUserForm()
     if current_user.role == "Administrator":
         user = Users.query.filter_by(id = user_id).first()
         books = []
-        for book_id in user.books:
+        for book in user.books:
             books.append(BooksTable.query.filter_by(id = user_id).first())
             pass
 

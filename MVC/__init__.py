@@ -1,6 +1,8 @@
 
 from flask import Flask
 #Flask is an microwebframework used to building web applications fast
+from flask_migrate import Migrate
+
 
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -74,7 +76,7 @@ db = SQLAlchemy()
 
 # connects to a SQLite database, which is stored in the app’s instance folder.
 db.init_app(app)
-
+migrate = Migrate(app, db)
 
 
 #------------------------------------------------------------------------
