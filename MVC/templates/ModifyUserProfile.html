@@ -21,8 +21,60 @@
           <span class="btn btn-primary">{{user.role}}</span>
           <p class="card-text"> Bio</p>
           <br><br>
-          <span href="#" class="btn btn-secondary">Update User</span>
-          <span href="#" class="btn btn-danger">Delete User</span>
+
+                         <!-- Button trigger modal -->
+                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            Update User
+                        </button>
+                        
+                        <!-- Modal -->
+                        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">Update User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    
+                                    <div class="container">
+                                        <form method="POST" class="form-register" style="color:black">
+                                                {{ form.hidden_tag() }}
+                                                
+                                                {{ form.name.label() }}
+                                                {{ form.name(class="form-control", placeholder=user.name)}}
+                                        
+                                                {{ form.username.label() }}
+                                                {{ form.username(class="form-control", placeholder=user.username) }}
+
+                                                <br> <br>
+                                                {{ form.profile_pic.label() }}
+                                                {{ form.profile_pic() }}
+                                        
+                                                <br>
+                                                <br><br>
+                                                {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+
+        
+
+                                        </form>
+                                    </div>   
+
+                                </div>
+                                <!--
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Understood</button>
+                                </div> -->
+                            </div>
+                            </div>
+                        </div>
+
+
+
+                            
+                        
+                        <span href="#" class="btn btn-danger">Delete User</span>
         </div>
       
     </div>

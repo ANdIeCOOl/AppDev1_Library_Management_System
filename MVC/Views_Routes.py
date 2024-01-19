@@ -237,7 +237,7 @@ def ModifyUser(user_id):
             books.append(BooksTable.query.filter_by(id = user_id).first())
             pass
 
-        return render_template("ModifyUserProfile.html", user=user , books=books)
+        return render_template("ModifyUserProfile.html", user=user , books=books,form = form)
     else:
         logout_user
         flash("Access Denied", category="danger")

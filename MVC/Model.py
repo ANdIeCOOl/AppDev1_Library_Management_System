@@ -52,6 +52,7 @@ users_books = db.Table(
 
 class  Users(db.Model, UserMixin):
     __tablename__ = "users"
+    profile_pic = db.Column(db.LargeBinary() ) 
     username = db.Column(db.String(length = 30),nullable = False , unique = True)
     id = db.Column(db.Integer(), primary_key = True)
     name =  db.Column(db.String(length = 60) , nullable = False )
@@ -69,7 +70,7 @@ class  Users(db.Model, UserMixin):
 
 class Books(db.Model):
     __tablename__ = "books"
-    profile_pic = db.Column(db.LargeBinary() ) 
+    book_pic = db.Column(db.LargeBinary() ) 
     id = db.Column(db.Integer(), primary_key = True)
     title =  db.Column(db.String(length = 60) , nullable = False )
     author =  db.Column(db.String(length = 60) , nullable = False )
