@@ -224,7 +224,7 @@ def ALLUsers():
     else:
         logout_user
         flash("Access Denied", category="danger")
-        return redirect(url_for("/"))
+        return redirect(url_for("index"))
 
 
 #--------
