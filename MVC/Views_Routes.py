@@ -65,6 +65,9 @@ def logout():
     flash("You have been successfully logged out", category="success")
     return redirect(url_for("index"))
 
+
+
+
 #REGISTER-------------------# still need to check why form.validate on submit not working
 @app.route("/register" , methods = ['GET','POST'])
 def register():
@@ -116,14 +119,6 @@ def register():
 @app.route("/Home") #LVL 1
 @login_required
 def Home():
-    print("--------------------\n'''''''''''''''''\n-------")
-    print(current_user.name)
-    print(current_user.username)
-    print(current_user.role)
-    print(current_user.id)
-    user = Users.query.filter_by(username = current_user.username).first()
-    print(user)
-    print("--------------------\n'''''''''''''''''\n-------")
     if (current_user.role == "Administrator"):
         return render_template("AdminHome.html")
     else:
@@ -256,7 +251,9 @@ def ModifyUser(user_id):
 
 #--------------------------------------------------------------------------------------
 #SECTIONS-------------------------------------------------------------------------------
-
+"""
+LVL 1
+"""
 @app.route("/Sections" , methods = ['GET' , 'POST'])
 @login_required
 def Sections():
@@ -265,19 +262,25 @@ def Sections():
         return render_template("AdminSections.html",sections = sections)
     else:
         return render_template("UserSections.html",sections = sections)
-    
-@app.route("/Sections/<int:ID>" , methods = ['GET' , 'POST'])
+
+
+"""
+Lvl 2 
+""" 
+@app.route("/Sections/<int:section_id>" , methods = ['GET' , 'POST'])
 @login_required
-def Section(ID):
-    orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
+def Section(section_id):
+    section = SectionTable.query.filter_by(id = section_id).first()
+    print(section)
     try:
-        books = db.engine.execute(f"SELECT * FROM books WHERE section_id = {ID} ORDERBY {orderFilter} ;")
+        books = BooksTable.query.filter_by(section_id = section_id).all()
+        print(books)
     except:
         pass
     if (current_user.role == "Administrator"):
-        return render_template("AdminBooks.html",books = books)
+        return render_template("AdminParticularSection.html",books = books,section = section)
     else:
-        return render_template("UserBooks.html",books = books)
+        return render_template("UserSections.html",books = books)
     
 
 
