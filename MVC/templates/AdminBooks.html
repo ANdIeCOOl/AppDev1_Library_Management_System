@@ -15,7 +15,7 @@ Library
                         <div class="card-body">
                           <h5 class="card-title">{{book.title}}</h5>
                           <p class="card-text"> {{book.description}}</p>
-                          <a href="" class="btn btn-primary  stretched-link">Go to book</a>
+                          <a href="{{url_for('Book' , book_id = book.id)}}" class="btn btn-primary  stretched-link">Go to book</a>
                         </div>
                     </div>
                 </div>

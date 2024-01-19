@@ -1,13 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Viweing BookInfo</h1>
-    <!-- Need DB data for information on books -->
-    <h2> Options to Delete Book, Modify book this  book</h2>
-</body>
-</html>
+{% extends  'base.html' %}
+{%block title %} 
+ {{book.title}}
+{% endblock %}
+{% block content %}
+
+<div class="mx-auto p-2" style="width: 200px;">
+    <h1 style="color: white;" class="display-1 ">{{book.title}}</h1>
+</div>
+ 
+
+
+
+    <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
+        <div class="mx-auto " style="width: 25rem;height: 15rem;">
+            <img src="#" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{book.title}}</h5>
+          <span class="btn btn-primary">{{book.role}}</span>
+          <p class="card-text"> {{book.description}}</p>
+          <br><br>
+          <span href="#" class="btn btn-secondary">Update book</span>
+          <span href="#" class="btn btn-danger">Delete book</span>
+          <span href="#" class="btn btn-primary">Go somewhere</span>
+        </div>
+      
+    </div>
+      
+</div>
+
+<h3 style="color: white;" class="display-3 ">{{book.title}}'s Library</h3>
+
+<br>
+<!---
+<div class="container">
+    <div class="row">
+            {% for book in book.books %}
+                    
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <div class="card-body">
+                        <h5 class="card-title">{{book.title}}</h5>
+                        <p class="card-text"> {{book.description}}</p>
+                        <a href="#" class="btn btn-secondary  ">View book</a>
+                        <a href="#" class="btn btn-secondary  ">Revoke access</a>
+                        <a href="#" class="btn btn-secondary  ">#</a>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+    </div>
+</div> 
+
+
+
+
+<div></div>
+<br><br><br>
+-->
+
+
+
+{% endblock content %}

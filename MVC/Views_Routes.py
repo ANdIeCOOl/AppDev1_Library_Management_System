@@ -1,6 +1,6 @@
 from MVC import app
 from MVC import Controller_Forms
-from MVC.Model import Users,Books,Sections,Requests,Restrictions,Feedbacks,users_books
+from MVC.Model import Users,Feedbacks,users_books
 from MVC.Model import Sections as SectionTable
 from MVC.Model import Requests as RequestsTable
 from MVC.Model import Books as BooksTable
@@ -280,7 +280,7 @@ def Section(section_id):
     if (current_user.role == "Administrator"):
         return render_template("AdminParticularSection.html",books = books,section = section)
     else:
-        return render_template("UserSections.html",books = books)
+        return render_template("UserSections.html",books = books,section = section)
     
 
 
@@ -309,7 +309,6 @@ def Books():
         db.session.add(book)
         db.session.commit() 
         flash("Upload Successfull" , category="success")
-        print("I AM HERE ----\n---------4 ---\n----------\n----------")
         return redirect(url_for("Home"))
 
     else:
@@ -319,21 +318,21 @@ def Books():
             return render_template("UserBooks.html")
 
 #Book Info
-@app.route("/Books/<int:BookID>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id
+@app.route("/Books/<int:book_id>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id
 @login_required
-def Book(Book_ID): 
+def Book(book_id): 
     
-    book = db.Books.query.filter_by( id = int(Book_ID)).first()
-    bookFeedback = db.Feedbacks.query.filter_by(book_id = int(Book_ID))
+    book = BooksTable.query.filter_by( id = book_id).first()
+    bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
     feedbacks = []
     
     for feedback in bookFeedback:
         feedbacks.append(feedback)
 
     if (current_user.role == "Administrator"):
-        return render_template("AdminBooks.html",book= book,feedbacks = feedbacks)
+        return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks)
     else:
-        return render_template("UserBooks.html",book = book)
+        return render_template("UserBookInfo.html",book = book)
 
 
 
