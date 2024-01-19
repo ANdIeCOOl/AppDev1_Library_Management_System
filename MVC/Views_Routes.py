@@ -3,6 +3,7 @@ from MVC import Controller_Forms
 from MVC.Model import Users,Books,Sections,Requests,Restrictions,Feedbacks,users_books
 from MVC.Model import Sections as SectionTable
 from MVC.Model import Requests as RequestsTable
+from MVC.Model import Books as BooksTable
 from MVC import db
 
 
@@ -210,6 +211,10 @@ def SectionsAnalytics():
 
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
+
+"""
+LVL 1
+"""
 @login_required
 @app.route("/Users")
 def ALLUsers():
@@ -220,6 +225,33 @@ def ALLUsers():
         logout_user
         flash("Access Denied", category="danger")
         return redirect(url_for("/"))
+
+
+#--------
+"""
+LVL 2
+"""
+@login_required
+@app.route("/Users/<int:user_id>")
+def ModifyUser(user_id):
+    if current_user.role == "Administrator":
+        user = Users.query.filter_by(id = user_id).first()
+        books = []
+        for book_id in user.books:
+            books.append(BooksTable.query.filter_by(id = user_id).first())
+            pass
+
+        return render_template("ModifyUserProfile.html", user=user , books=books)
+    else:
+        logout_user
+        flash("Access Denied", category="danger")
+        return redirect(url_for("/"))
+
+
+
+
+
+
 
 
 #--------------------------------------------------------------------------------------
@@ -265,16 +297,21 @@ def Books():
         books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter} ;")
     except:
         pass"""
-    
+    books = db.session.execute(db.select(BooksTable)).scalars()
     if form.validate_on_submit() or request.method == "POST":
-        book = Books(title = form.title.data , 
+        book = BooksTable(title = form.title.data , 
                      author = form.author.data ,
                      description =form.description.data ,
-                     content=form.content.data )
+                     content=form.content.data.read() )
+        db.session.add(book)
+        db.session.commit() 
+        flash("Upload Successfull" , category="success")
+        print("I AM HERE ----\n---------4 ---\n----------\n----------")
+        return redirect(url_for("Home"))
 
     else:
         if (current_user.role =="Administrator"):
-            return render_template("AdminBooks.html",form = form)
+            return render_template("AdminBooks.html",form = form , books = books)
         else:
             return render_template("UserBooks.html")
 

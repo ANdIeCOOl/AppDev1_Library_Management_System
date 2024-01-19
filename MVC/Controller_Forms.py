@@ -29,7 +29,7 @@ class UploadBookForm(FlaskForm):
     title =  StringField("Title", validators=[DataRequired()])
     author =  StringField("Author", validators=[DataRequired()])
     description =  StringField("Description", validators=[DataRequired()])
-    content =   FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png'], 'Images only!')])
+    content =   FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png','pdf'], 'Filesonly only!')])
 	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
     section_id =   IntegerField("SectionID")
     submit = SubmitField("Upload Book")  

@@ -75,7 +75,7 @@ class Books(db.Model):
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
-    visits =  db.Column(db.Integer() , nullable = False )
+    visits =  db.Column(db.Integer()  )
     feedback = db.relationship("Feedbacks")
     restrictions = db.relationship("Restrictions")
     requests = db.relationship("Requests")
@@ -83,7 +83,7 @@ class Books(db.Model):
 
 
     def __repr__(self) -> str:
-        return f"Name: {self.title}; Author:{self.author} "
+        return f"Name: {self.title}; Author:{self.author} ; Content:{self.content}"
 
 
 class Sections(db.Model):
