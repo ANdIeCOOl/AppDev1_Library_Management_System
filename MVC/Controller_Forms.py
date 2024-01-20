@@ -39,7 +39,7 @@ class EditBookForm(FlaskForm):
 
 class EditUserForm(FlaskForm):
 	name = StringField("Name")
-	profile_pic = FileField("Choose profile picture", validators=[FileAllowed(['jpg', 'png'])])
+	profile_pic = FileField("Choose profile picture", validators=[FileAllowed(['jpg', 'png','jpeg'])])
 	username = StringField("Username")
 	submit = SubmitField("Update")
 

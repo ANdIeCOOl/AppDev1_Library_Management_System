@@ -63,7 +63,10 @@ class  Users(db.Model, UserMixin):
     restrictions = db.relationship("Restrictions")
 
     def __repr__(self) -> str:
-        return f"Name: {self.name}; Books:{self.books} ; Role:{self.role}"
+        return f"""Name: {self.name};
+                Username: {self.username};
+                Books:{self.books} ;
+                Role:{self.role}"""
     
   
 

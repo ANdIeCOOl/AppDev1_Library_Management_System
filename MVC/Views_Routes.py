@@ -10,6 +10,7 @@ from MVC import db
 from flask import render_template, url_for,redirect,flash,request
 from flask_login import login_user, logout_user, login_required, current_user, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash 
+from base64 import b64encode
 
 #LANDING PAGE-------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------
@@ -68,46 +69,44 @@ def logout():
 
 
 
-#REGISTER-------------------# still need to check why form.validate on submit not working
+#REGISTER-------------------
+# still need to check why form.validate on submit not working
+# thats proabably because some validation criteria is not being met check 
+#  modifyusers function do that xD
+#-------
+
 @app.route("/register" , methods = ['GET','POST'])
 def register():
     form = Controller_Forms.RegisterForm()
-    print("TESTING FORM VALIDATION--------------\n---------------")
     print(form.validate_on_submit())
-    print("TESTING FORM VALIDATION--------------\n---------------")
-    print("I AM HERE ----\n---------1 ---\n----------\n----------")
+
+
     if form.validate_on_submit() or request.method == "POST":
     # ):
     #if request.method == "POST":
-
-        print("I AM HERE ----\n---------2 ---\n----------\n----------")
         user = Users.query.filter_by(username = form.username.data).first()
         
         if user:    
             flash("Username is already taken", category="info")
-            print("I AM HERE ----\n---------3 ---\n----------\n----------")
-            return redirect(url_for("register"))
-            
+            return redirect(url_for("register"))     
+       
         else:
+            
             if (form.password.data == form.confirm_password.data):
                 New_User = Users(username=form.username.data,
                                  name = form.name.data,
                                  password_hash =generate_password_hash(form.password.data)
-                                )
-                              
-                            
+                                )          
                 db.session.add(New_User)
                 db.session.commit() 
                 login_user(New_User)
                 flash("Registration Successfull" , category="success")
-                print("I AM HERE ----\n---------4 ---\n----------\n----------")
                 return redirect(url_for("Home"))
+            
             else:
                 flash("Passwords did not match" , category="warning")
-                print("I AM HERE ----\n---------5 ---\n----------\n----------")
                 return redirect(url_for("register"))
-    print("I AM HERE ----\n---------7 ---\n----------\n----------")         
-    print("I AM HERE ----\n---------6 ---\n----------\n----------")
+   
     return render_template("register.html",form = form)
 
 
@@ -217,7 +216,7 @@ def ALLUsers():
         users = db.session.execute(db.select(Users)).scalars()
         return render_template("AllUserProfiles.html",users = users)
     else:
-        logout_user
+        logout_user()
         flash("Access Denied", category="danger")
         return redirect(url_for("index"))
 
@@ -227,21 +226,50 @@ def ALLUsers():
 LVL 2
 """
 @login_required
-@app.route("/Users/<int:user_id>")
+@app.route("/Users/<int:user_id>",methods = ["GET","POST"])
 def ModifyUser(user_id):
-    form = Controller_Forms.EditUserForm()
-    if current_user.role == "Administrator":
-        user = Users.query.filter_by(id = user_id).first()
-        books = []
-        for book in user.books:
-            books.append(BooksTable.query.filter_by(id = user_id).first())
-            pass
 
-        return render_template("ModifyUserProfile.html", user=user , books=books,form = form)
+    if current_user.role == "Administrator":
+        form = Controller_Forms.EditUserForm()
+
+        if form.validate_on_submit():
+            user = Users.query.filter_by(id = user_id).first()
+            user.username = form.username.data
+            user.name = form.name.data
+            if form.profile_pic.data:
+                user.profile_pic = form.profile_pic.data.read()
+            user.verified = True
+            db.session.commit()    
+            flash("Update Successfull" , category="success")
+            return redirect(url_for("ModifyUser",user_id = user_id))
+
+        elif request.method == "POST":
+            for fieldName, errorMessages in form.errors.items():
+                for error in errorMessages:
+                    flash(error,category="danger")
+            return redirect(url_for("ModifyUser",user_id = user_id))
+
+
+            
+
+        else:
+
+            user = Users.query.filter_by(id = user_id).first()
+            image = None
+            try:
+                image = b64encode(user.profile_pic).decode("utf-8")
+            except:
+                pass
+            books = []
+            for book in user.books:
+                books.append(BooksTable.query.filter_by(id = user_id).first())
+                pass
+
+            return render_template("ModifyUserProfile.html", user=user , books=books,form = form , image = image)
     else:
-        logout_user
+        logout_user()
         flash("Access Denied", category="danger")
-        return redirect(url_for("/"))
+        return redirect(url_for("index"))
 
 
 

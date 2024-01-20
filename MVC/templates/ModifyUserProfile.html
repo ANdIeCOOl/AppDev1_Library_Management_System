@@ -14,7 +14,7 @@
 
     <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
         <div class="mx-auto " style="width: 25rem;height: 15rem;">
-            <img src="#" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+            <img src="data:;base64,{{ image }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
         </div>
         <div class="card-body">
           <h5 class="card-title">{{user.username}}</h5>
@@ -38,7 +38,7 @@
                                 <div class="modal-body">
                                     
                                     <div class="container">
-                                        <form method="POST" class="form-register" style="color:black">
+                                        <form method="POST" class="form-register" style="color:black" enctype="multipart/form-data">
                                                 {{ form.hidden_tag() }}
                                                 
                                                 {{ form.name.label() }}
@@ -49,7 +49,7 @@
 
                                                 <br> <br>
                                                 {{ form.profile_pic.label() }}
-                                                {{ form.profile_pic() }}
+                                                {{ form.profile_pic(class = "form-control") }}
                                         
                                                 <br>
                                                 <br><br>
