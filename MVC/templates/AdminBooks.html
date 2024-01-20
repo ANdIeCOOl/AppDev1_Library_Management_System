@@ -28,27 +28,7 @@ Library
                       <h5 class="card-title">Add Book</h5>
                       <p class="card-text"> 
 
-                        <form method = "POST" enctype="multipart/form-data">
-                            {{form.hidden_tag()}}
-                            
-                            {{ form.title.label() }}
-                            {{ form.title(class="form-control", placeholder="Enter title")}}
-                    
-                            {{ form.author.label() }}
-                            {{ form.author(class="form-control", placeholder="Enter Author name") }}
-                    
-                            {{ form.description.label() }}
-                            {{ form.description(class="form-control", placeholder="Password") }}
-                    
-                            {{ form.section_id.label() }}
-                            {{ form.section_id(class="form-control", placeholder="Not necessary") }}
-
-                            {{ form.content.label() }}
-                            {{ form.content() }}
-                    
-                            <br>
-                            {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
-                        </form>
+                        
 
                       </p>
                     </div>

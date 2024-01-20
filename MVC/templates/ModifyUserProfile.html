@@ -14,7 +14,7 @@
 
     <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
         <div class="mx-auto " style="width: 25rem;height: 15rem;">
-            <img src="data:;base64,{{ image }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+            <img src="data:;base64,{{ Profile_image }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
         </div>
         <div class="card-body">
           <h5 class="card-title">{{user.username}}</h5>
@@ -74,7 +74,39 @@
 
                             
                         
-                        <span href="#" class="btn btn-danger">Delete User</span>
+                        <span ></span>
+                        {% if user.role != "Administrator" %}
+
+
+                                                <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Delete User
+                        </button>
+                        
+                        <!-- Modal -->
+                        
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title " id="exampleModalLabel">Are you sure?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                ...
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type = "button" href="{{url_for('DeleteUser',user_id = user.id)}}" class="btn btn-danger">Delete User</a>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        {% endif %}
+        
+        
+        
+        
         </div>
       
     </div>
@@ -86,15 +118,15 @@
 <br>
 <div class="container">
     <div class="row">
-            {% for book in user.books %}
-                    
+            {% for book in books %}
+               
 
                 <div class="col-sm mt-3 mb-3">
                     <div class="card" style="width: 18rem;">
-                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <img src="data:;base64,{{ book[1] }}" class="card-img-top" alt="book_image">
                         <div class="card-body">
-                        <h5 class="card-title">{{book.title}}</h5>
-                        <p class="card-text"> {{book.description}}</p>
+                        <h5 class="card-title">{{book[0].title}}</h5>
+                        <p class="card-text"> {{book[0].description}}</p>
                         <a href="#" class="btn btn-secondary  ">View book</a>
                         <a href="#" class="btn btn-secondary  ">Revoke access</a>
                         <a href="#" class="btn btn-secondary  ">#</a>

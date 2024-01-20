@@ -255,24 +255,53 @@ def ModifyUser(user_id):
         else:
 
             user = Users.query.filter_by(id = user_id).first()
-            image = None
+            Profile_image = None
             try:
-                image = b64encode(user.profile_pic).decode("utf-8")
+                Profile_image = b64encode(user.profile_pic).decode("utf-8")
             except:
                 pass
             books = []
             for book in user.books:
-                books.append(BooksTable.query.filter_by(id = user_id).first())
+                if book.book_pic:
+                    books.append((BooksTable.query.filter_by(id = book.id).first(),
+                              b64encode(book.book_pic).decode("utf-8")))
+                else:
+                    books.append((BooksTable.query.filter_by(id = book.id).first(),
+                                 None))
                 pass
 
-            return render_template("ModifyUserProfile.html", user=user , books=books,form = form , image = image)
+            return render_template("ModifyUserProfile.html", user=user , books=books,form = form , Profile_image = Profile_image)
     else:
         logout_user()
         flash("Access Denied", category="danger")
         return redirect(url_for("index"))
 
 
+@login_required
+@app.route("/Users/Delete/<user_id>",methods = ["GET","POST"])
+def DeleteUser(user_id):
+    if request.method == "GET":
+        if current_user.role == "Administrator":
+            user = Users.query.filter_by(id = user_id).first()
+            if user:
+                db.session.delete(user)
+                db.session.commit()
+                flash(f"Account has been deleted" , 
+                category="danger")
+                return redirect(url_for("ALLUsers"))
+        
+        else:
+            flash("What you sow you shall reap \n Your account has been deleted" , 
+                category="danger")
+            user = Users.query.filter_by(id = current_user.id).first()
+            logout_user()
+            db.session.delete(user)
+            db.session.commit()
+            return redirect(url_for("index"))
 
+    else:
+        render_template("DeleteUser.html") #  never come here but for 
+                                        #            testing purposes
 
 
 
@@ -350,7 +379,7 @@ def Books():
 @app.route("/Books/<int:book_id>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id
 @login_required
 def Book(book_id): 
-    
+    form = Controller_Forms.EditBookForm()
     book = BooksTable.query.filter_by( id = book_id).first()
     bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
     feedbacks = []
@@ -359,7 +388,7 @@ def Book(book_id):
         feedbacks.append(feedback)
 
     if (current_user.role == "Administrator"):
-        return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks)
+        return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form)
     else:
         return render_template("UserBookInfo.html",book = book)
 

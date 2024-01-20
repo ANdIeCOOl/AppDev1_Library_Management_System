@@ -35,7 +35,14 @@ class UploadBookForm(FlaskForm):
     submit = SubmitField("Upload Book")  
 	
 class EditBookForm(FlaskForm):
-	pass
+	title =  StringField("Title")
+	author =  StringField("Author")
+	description =  StringField("Description")
+	content =   FileField("Content", validators=[FileAllowed(['pdf'], 'Filesonly only!')])
+	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
+	section_id =   IntegerField("SectionID")
+	submit = SubmitField("Upload Book")  
+	
 
 class EditUserForm(FlaskForm):
 	name = StringField("Name")
