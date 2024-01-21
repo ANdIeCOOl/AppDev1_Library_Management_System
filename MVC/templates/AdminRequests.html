@@ -18,8 +18,10 @@
                            {{request.book_id}}
 
                         </h3>
-                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-
+                        <div > 
+                            <a href="{{url_for('AcceptRequest' , request_id = request.id)}}" class="btn btn-success ">Approve</a>
+                            <a href="{{url_for('RejectRequest' , request_id = request.id)}}" class="btn btn-danger ">Reject</a>
+                        </div>
                     </div>
                     </div>
 

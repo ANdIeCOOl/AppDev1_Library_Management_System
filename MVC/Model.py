@@ -81,9 +81,9 @@ class Books(db.Model):
     content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
     visits =  db.Column(db.Integer()  )
-    feedback = db.relationship("Feedbacks")
-    restrictions = db.relationship("Restrictions")
-    requests = db.relationship("Requests")
+    feedback = db.relationship("Feedbacks",cascade="all, delete")
+    restrictions = db.relationship("Restrictions",cascade="all, delete" )
+    requests = db.relationship("Requests",cascade="all, delete")
     rating = db.Column(db.Integer() , default = 5)
 
 
@@ -111,9 +111,10 @@ class Feedbacks(db.Model):
 class Requests(db.Model):
     __tablename__ = "requests"
     id = db.Column(db.Integer(), primary_key = True)
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'),nullable = False,unique = True)
     date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime("%d/%m/%Y")  )
     status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
+    user_id = db.Column(db.Integer(),db.ForeignKey("users.id"),nullable = False)
 
     def __repr__(self) -> str:
         return f"Book: {Books.query.get(self.book_id)}; date:{self.date} ; Status:{self.status}"

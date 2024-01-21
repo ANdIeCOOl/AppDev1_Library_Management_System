@@ -18,7 +18,7 @@ Profiles
                         <div class="card-body">
                           <h5 class="card-title">{{book.title}}</h5>
                           <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                          <a href="#" class="btn btn-secondary  stretched-link">Visit profile</a>
+                          <a href="{{url_for('Book',book_id = book.id)}}" class="btn btn-secondary  stretched-link">Visit profile</a>
                         </div>
                     </div>
                 </div>
