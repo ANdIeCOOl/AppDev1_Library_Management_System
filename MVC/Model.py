@@ -95,10 +95,9 @@ class Sections(db.Model):
     __tablename__ = "sections"
     id = db.Column(db.Integer(), primary_key = True)
     name =  db.Column(db.String(length = 60) , nullable = False )
-    date_created =  db.Column(db.String(length = 60) , nullable = False )
+    date_created =  db.Column(db.String(length = 60) , nullable = False ,default = date.today().strftime("%d/%m/%Y") )
     description =  db.Column(db.String(length = 60) , nullable = False )
-    content =  db.Column(db.String(length = 60) , nullable = False )
-    visits =  db.Column(db.String(length = 60) , nullable = False )
+    visits =  db.Column(db.String(length = 60) , nullable = True )
     name =  db.Column(db.String(length = 60) , nullable = False )
 
 class Feedbacks(db.Model):

@@ -315,9 +315,40 @@ LVL 1
 @app.route("/Sections" , methods = ['GET' , 'POST'])
 @login_required
 def Sections():
+    form = Controller_Forms.UploadSectionForm()
     sections = db.session.execute(db.select(SectionTable)).scalars()
     if (current_user.role =="Administrator"):
-        return render_template("AdminSections.html",sections = sections)
+        
+        
+        if form.validate_on_submit():
+            section = SectionTable.query.filter_by(name = form.name.data).first()
+        
+            if section:    
+                flash("Section is already exists", category="warning")
+                return redirect(url_for("Sections"))     
+        
+            else:
+                
+                
+                New_Section = SectionTable(name=form.name.data,
+                                          description = form.description.data
+                                        )          
+                db.session.add(New_Section)
+                db.session.commit() 
+                flash("Adding New Section Successfull" , category="success")
+                return redirect(url_for("Sections")) 
+    
+        
+        elif request.method == "POST":
+            for fieldName, errorMessages in form.errors.items():
+                for error in errorMessages:
+                    flash(error,category="danger")
+            return redirect(url_for("Section"))
+
+        
+        else:
+            return render_template("AdminSections.html",sections = sections,form=form)
+    
     else:
         return render_template("UserSections.html",sections = sections)
 
@@ -329,10 +360,8 @@ Lvl 2
 @login_required
 def Section(section_id):
     section = SectionTable.query.filter_by(id = section_id).first()
-    print(section)
     try:
         books = BooksTable.query.filter_by(section_id = section_id).all()
-        print(books)
     except:
         pass
     if (current_user.role == "Administrator"):
@@ -368,11 +397,13 @@ def Books():
         book = BooksTable(title = form.title.data , 
                      author = form.author.data ,
                      description =form.description.data ,
-                     content=form.content.data.read() )
+                     content=form.content.data.read(),
+                     section_id = form.section_id.data
+                     )
         db.session.add(book)
         db.session.commit() 
         flash("Upload Successfull" , category="success")
-        return redirect(url_for("Home"))
+        return redirect(url_for("Books"))
 
     else:
         if (current_user.role =="Administrator"):
@@ -385,17 +416,76 @@ def Books():
 @login_required
 def Book(book_id): 
     form = Controller_Forms.EditBookForm()
-    book = BooksTable.query.filter_by( id = book_id).first()
-    bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
-    feedbacks = []
-    
-    for feedback in bookFeedback:
-        feedbacks.append(feedback)
+    if form.validate_on_submit():
+        book = BooksTable.query.filter_by(id = book_id).first()
+        if form.author.data:
+            book.author = form.author.data
+        if form.description.data:
+            book.description = form.description.data
+        if form.content.data:
+            book.content = form.content.data.read()
+            #also read pdf and put the first page as book_pic
+        if form.section_id.data:
+            book.section_id = form.section_id.data
 
-    if (current_user.role == "Administrator"):
-        return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form)
+        book.verified = True
+        db.session.commit()    
+        flash("Update Successfull" , category="success")
+        return redirect(url_for("Book",book_id = book_id))
+
+    elif request.method == "POST":
+        for fieldName, errorMessages in form.errors.items():
+                for error in errorMessages:
+                    flash(error,category="danger")
+        return redirect(url_for("Book",book_id = book_id))
+
     else:
-        return render_template("UserBookInfo.html",book = book)
+
+        
+        book = BooksTable.query.filter_by( id = book_id).first()
+        section = SectionTable.query.filter_by(id = book.section_id).first()
+        if section:
+            section = section.name
+        bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
+        feedbacks = []
+        for feedback in bookFeedback:
+            feedbacks.append(( Users.query.filter_by( id = feedback.user_id).first(),
+                               BooksTable.query.filter_by( id = feedback.book_id).first() ,
+                               feedback.feedback,
+                               feedback.rating
+                            ))
+
+        if (current_user.role == "Administrator"):
+            return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section)
+        else:
+            return render_template("UserBookInfo.html",book = book)
+
+#--------------------------------------------------------------------------------------
+#Book DELETETION
+#-------------------------------------------------------------------------------
+@login_required
+@app.route("/Books/Delete/<book_id>",methods = ["GET","POST"])
+def DeleteBook(book_id):
+    if request.method == "GET":
+        if current_user.role == "Administrator":
+            book = BooksTable.query.filter_by(id = book_id).first()
+            if book:
+                db.session.delete(book)
+                db.session.commit()
+                flash(f"Book has been deleted" , 
+                category="danger")
+                return redirect(url_for("Books"))
+        
+        else:
+            flash(f"You cannot be here {current_user.name}" , 
+                category="danger")
+            logout_user()
+            return redirect(url_for("index"))
+
+    else:
+        render_template("DeleteUser.html") #  never come here but for 
+                                        #            testing purposes
+
 
 
 

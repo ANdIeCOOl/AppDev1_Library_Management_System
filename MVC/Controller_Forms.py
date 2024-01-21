@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField,IntegerField
 from flask_wtf.file import FileField,FileRequired,FileAllowed
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
+from datetime import date
 
 class LoginForm(FlaskForm):
     username = StringField("Username" , validators=[DataRequired()])
@@ -50,5 +51,7 @@ class EditUserForm(FlaskForm):
 	username = StringField("Username")
 	submit = SubmitField("Update")
 
-
-
+class UploadSectionForm(FlaskForm):
+    name =  StringField("Section Name", validators=[DataRequired()])
+    description =  StringField("Description", validators=[DataRequired()])
+    submit = SubmitField("Add Section")  
