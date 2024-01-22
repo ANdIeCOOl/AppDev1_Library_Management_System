@@ -1,9 +1,10 @@
 from MVC import app
 from MVC import Controller_Forms
-from MVC.Model import Users,Feedbacks,users_books
+from MVC.Model import Users,users_books
 from MVC.Model import Sections as SectionTable
 from MVC.Model import Requests as RequestsTable
 from MVC.Model import Books as BooksTable
+from MVC.Model import Feedbacks 
 from MVC import db
 
 
@@ -347,6 +348,12 @@ def ModifyUser(user_id):
     #------------
     #USER DASHBOARD
     else:#USER DASHBOARD
+        
+        """ if form.validate_on_submit: #UPDATE USER
+            pass
+        elif request.method == "POST":
+            pass
+        else:"""
         form = Controller_Forms.EditUserForm()
         Profile_image = None
         try:
@@ -357,20 +364,43 @@ def ModifyUser(user_id):
         for book in current_user.books:
             if book.book_pic:
                 books.append((BooksTable.query.filter_by(id = book.id).first(),
-                          b64encode(book.book_pic).decode("utf-8")))
+                        b64encode(book.book_pic).decode("utf-8")))
             else:
                 books.append((BooksTable.query.filter_by(id = book.id).first(),
-                                 None))
-                
+                                    None))
+                    
         return render_template("UserProfile.html",form=form,books=books,Profile_image=Profile_image)
 
+#RETURNING AND FEEDBACK-----------
 @login_required
 @app.route("/Return/<int:book_id>",methods = ["GET","POST"])
 def ReturnBook(book_id):
-    db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
-    db.session.commit()
-    flash("Thanks for returning the Book",category="success")
-    return redirect(url_for("Books"))
+    form = Controller_Forms.UploadFeedBackForm()
+    if request.method == "GET":
+        db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        db.session.commit()
+        flash("Thanks for returning the Book",category="success")
+        return render_template("UserFeedback.html",form=form,book_id = book_id)
+    elif form.validate_on_submit:
+        feedback = Feedbacks(book_id = book_id,
+                                  user_id = current_user.id,
+                                  feedback = form.feedback.data,
+                                  rating = form.rating.data
+                                  )
+        db.session.add(feedback)
+        db.session.commit()
+        flash("Thank you for the feedback",category="success")
+        return redirect(url_for("ModifyUser",user_id = current_user.id))
+    else:
+        for fieldName, errorMessages in form.errors.items():
+            for error in errorMessages:
+                flash(error,category="danger")
+        return redirect(url_for("ModifyUser",user_id = current_user.id))
+
+
+
+
+
 
 #-----------
 #DELETE USER PROFILE
@@ -484,6 +514,7 @@ def Section(section_id):
 @app.route("/Books" , methods = ['GET' , 'POST'])
 @login_required
 def Books():
+    books = db.session.execute(db.select(BooksTable)).scalars()
     if current_user.role == "Administrator":
         form = Controller_Forms.UploadBookForm()
         """orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
@@ -491,7 +522,7 @@ def Books():
             books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter} ;")
         except:
             pass"""
-        books = db.session.execute(db.select(BooksTable)).scalars()
+        
         if form.validate_on_submit() or request.method == "POST":
             book = BooksTable(title = form.title.data , 
                         author = form.author.data ,
@@ -513,7 +544,7 @@ def Books():
             return render_template("AdminBooks.html",form = form , books = books)
     
     else:
-        return render_template("UserBooks.html")
+        return render_template("UserBooks.html",books=books)
 
 #Book Info
 @app.route("/Books/<int:book_id>" , methods = ['GET' , 'POST']) #get id then book name pass book name in url but better to use id

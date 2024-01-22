@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Feedback
+{% endblock %}
+
+{% block content %}
+
+
+
+<h1  style="color: white; text-align-last: center;" >YOUR THOUGHTS ON THE BOOK</h1>
+
+<div class="container">
+    <form method="POST" class="form-register" style="color:white">
+        {{ form.hidden_tag() }}
+        
+
+        {{ form.feedback.label() }}
+        {{ form.feedback(class="form-control", placeholder="Give us your feedback") }}
+
+        {{ form.rating.label() }}
+        {{ form.rating(class="form-control", placeholder="Give us your rating of the book") }}
+
+        <br>
+        {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+        <br>
+        <br>
+    
+        
+
+    </form>
+</div>
+
+
+{% endblock %}
