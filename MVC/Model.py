@@ -48,6 +48,7 @@ users_books = db.Table(
     "users_books",
     db.Column("user_id", db.ForeignKey("users.id"),primary_key=True),
     db.Column("book_id", db.ForeignKey("books.id"),primary_key=True),
+    db.Column("doi",db.String(), default  = date.today().strftime("%d/%m/%Y"))
 )
 
 class  Users(db.Model, UserMixin):

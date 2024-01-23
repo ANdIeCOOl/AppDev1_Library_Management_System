@@ -284,6 +284,22 @@ def RequestsHistory():
     else:
         return render_template("UserRequestsHistory.html")
 
+#----------------------
+#Revoke access to Book for user no need restict user and book id 
+    
+#Revoke access for one or multiple e-book(s) from a user (not for a user so just remove)
+#---------
+@login_required
+@app.route("/Revoke/<int:book_id><int:user_id>",methods = ["GET","POST"])
+def RevokeBook(book_id,user_id):
+    if request.method == "GET":
+        db.session.execute(users_books.delete().where(users_books.columns.user_id == user_id).where(users_books.columns.book_id==book_id))
+        db.session.commit()
+        flash("Access Denied, You have successfully witheld knowledge",category="success")        
+        return redirect(url_for("ModifyUser",user_id = user_id))
+    
+
+
 
 #--------------------------------------------------------------------------------------
 #ANALYTICS-------------------------------------------------------------------------------
@@ -659,6 +675,27 @@ def Book(book_id):
                                 ))
           
         return render_template("UserBookInfo.html",book = book,feedbacks = feedbacks,section = section)
+
+#--------------------
+#READ A BOOK
+#---------
+    
+from datetime import date
+@app.route("/Books/<int:book_id>/Read" , methods = ['GET' , 'POST'])
+@login_required
+def ReadBook(book_id):
+        x = "22/02/2024".rsplit("/")
+        y = date(int(x[2]),int(x[1]),int(x[0]))
+        entries = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        for row in entries:
+            print("---------- \n ------------\n ------------ \n")
+            print(date.today())
+            print( date.today().strftime("%d/%m/%Y") > "22/02/2024")
+            print( date.today() > y)
+            print(y)
+            print("---------- \n ------------\n ------------ \n")
+        
+        return "<h1> Reading User</h1>"
 
 #--------------------------------------------------------------------------------------
 #Book DELETETION
