@@ -11,7 +11,7 @@ from MVC import db
 from flask import render_template, url_for,redirect,flash,request
 from flask_login import login_user, logout_user, login_required, current_user, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash 
-from base64 import b64encode
+from base64 import b64encode,b64decode
 
 
 
@@ -684,16 +684,24 @@ from datetime import date
 @app.route("/Books/<int:book_id>/Read" , methods = ['GET' , 'POST'])
 @login_required
 def ReadBook(book_id):
-        x = "22/02/2024".rsplit("/")
-        y = date(int(x[2]),int(x[1]),int(x[0]))
+        
+        
         entries = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
         for row in entries:
             print("---------- \n ------------\n ------------ \n")
             print(date.today())
+            x = row[2].rsplit("/")
+            doi = date(int(x[2]),int(x[1]),int(x[0]))
+            dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
             print( date.today().strftime("%d/%m/%Y") > "22/02/2024")
-            print( date.today() > y)
-            print(y)
+            print( date.today() > doi)
+            print(dor)
+            print(doi)
             print("---------- \n ------------\n ------------ \n")
+        if dor > date.today():
+            pass # access book
+        else:
+            pass # return book
         
         return "<h1> Reading User</h1>"
 
