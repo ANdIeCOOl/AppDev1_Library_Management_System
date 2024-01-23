@@ -140,13 +140,23 @@ def Home():
 def Search():
     form1 = Controller_Forms.SearchForm()
     if form1.validate_on_submit:
-        search = form1.search.data
+        search = f"%{form1.search.data}%"
         search_in = form1.lookfor.data
-        print("1------------- \n ----------")
-        print(search_in)    
-        print("1------------- \n ----------")
+        print(search_in) 
+        if search_in == "Books":
+            data = BooksTable.query.filter((BooksTable.title.like(search))).all()
+            return render_template("Search.html",search = form1.search.data , data = data,search_in=search_in)
+            
+        
+        if search_in == "Authors":
+            data = BooksTable.query.filter( (BooksTable.author.like(search))).all()
+            return render_template("Search.html",search = form1.search.data , data = data,search_in = search_in)
 
-        return render_template("Search.html",search = search)   
+        if search_in == "Sections":
+            data = SectionTable.query.filter((SectionTable.name.like(search))).all()
+            return render_template("Search.html",search = form1.search.data , data = data,search_in = search_in )  
+        
+          
     elif request.method == "POST":
         for fieldName, errorMessages in form1.errors.items():
             for error in errorMessages:
@@ -616,7 +626,7 @@ def Book(book_id):
 
             
             book = BooksTable.query.filter_by( id = book_id).first()
-            readers = book.readers
+            readers = book.current_readers
             print("Test 1 ------ \n --------\n")
             section = SectionTable.query.filter_by(id = book.section_id).first()
             print("Test  2------ \n --------\n")
