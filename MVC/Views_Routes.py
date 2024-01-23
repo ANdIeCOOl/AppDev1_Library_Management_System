@@ -13,6 +13,13 @@ from flask_login import login_user, logout_user, login_required, current_user, l
 from werkzeug.security import generate_password_hash, check_password_hash 
 from base64 import b64encode
 
+
+
+@app.context_processor
+def base():
+    form1 = Controller_Forms.SearchForm()
+    return dict(form1 = form1)
+
 #LANDING PAGE-------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------
 
@@ -123,6 +130,36 @@ def Home():
         return render_template("AdminHome.html")
     else:
         return render_template("UserHome.html")
+
+
+#--------------------------
+#SEARCH
+#-----------
+    
+@app.route("/Search",methods = ["POST","GET"])
+def Search():
+    form1 = Controller_Forms.SearchForm()
+    if form1.validate_on_submit:
+        search = form1.search.data
+        search_in = form1.lookfor.data
+        print("1------------- \n ----------")
+        print(search_in)    
+        print("1------------- \n ----------")
+
+        return render_template("Search.html",search = search)   
+    elif request.method == "POST":
+        for fieldName, errorMessages in form1.errors.items():
+            for error in errorMessages:
+                flash(error,category="danger")
+        return redirect(url_for("Home"))
+    else:
+        
+        return render_template ("Search.html",search = "Something went wrong \n not supposed to come here",
+                                form1 = form1)
+
+
+
+
 
 
 #--------------------------------------------------------------------------------------
@@ -579,18 +616,24 @@ def Book(book_id):
 
             
             book = BooksTable.query.filter_by( id = book_id).first()
+            readers = book.readers
+            print("Test 1 ------ \n --------\n")
             section = SectionTable.query.filter_by(id = book.section_id).first()
+            print("Test  2------ \n --------\n")
             if section:
                 section = section.name
+                print("Test  3 ------ \n --------\n")
             bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
             feedbacks = []
+            print("Test  4 ------ \n --------\n")
             for feedback in bookFeedback:
                 feedbacks.append(( Users.query.filter_by( id = feedback.user_id).first(),
                                 BooksTable.query.filter_by( id = feedback.book_id).first() ,
                                 feedback.feedback,
                                 feedback.rating
                                 ))
-                return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section)
+            print("Test  5 ------ \n --------\n")
+            return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section)
     else:
         book = BooksTable.query.filter_by( id = book_id).first()
         section = SectionTable.query.filter_by(id = book.section_id).first()

@@ -85,6 +85,7 @@ class Books(db.Model):
     restrictions = db.relationship("Restrictions",cascade="all, delete" )
     requests = db.relationship("Requests",cascade="all, delete")
     rating = db.Column(db.Integer() , default = 5)
+    current_readers = db.relationship("Users",secondary = users_books )
 
 
     def __repr__(self) -> str:

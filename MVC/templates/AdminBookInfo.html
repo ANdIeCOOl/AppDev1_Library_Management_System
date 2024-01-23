@@ -126,7 +126,8 @@
     </div>
       
 </div>
-
+{% if feedbacks %}
+<h1 style="color: white;" class="display-1 ">Feedbacks</h1>
 {% for feedback in feedbacks%}
     <br>
     <div class="card mb-3" style="max-width: 540px;">
@@ -139,6 +140,27 @@
             <h5 class="card-title">{{feedback[0].name}}</h5>
             <p class="card-text">{{feedback[2]}}</p>
             <p class="card-text"><small class="text-body-secondary">Rating:{{feedback[3]}}</small></p>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+{% endfor %}
+{% endif %}
+<br>
+<h1 style="color: white;" class="display-1 ">Current Readers</h1>
+{% for reader in book.current_readers %}
+    <br>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+        <div class="col-md-4">
+            <img src="..." class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+            <h5 class="card-title">{{reader.username}}</h5>
+            <p class="card-text">Name: {{reader.name}}</p>
+            <p class="card-text"><small class="text-body-secondary">Role:{{reader.role}}</small></p>
             </div>
         </div>
         </div>

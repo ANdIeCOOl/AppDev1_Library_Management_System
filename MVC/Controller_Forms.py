@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField,IntegerField
+from wtforms import StringField, SubmitField, PasswordField, BooleanField,IntegerField,SelectField,SearchField
 from flask_wtf.file import FileField,FileRequired,FileAllowed
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,NumberRange
 from datetime import date
@@ -14,11 +14,7 @@ class RegisterForm(FlaskForm):
 	username = StringField("Username", validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
 	confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
-	submit = SubmitField("Register")
-      
-class SearchBarForm(FlaskForm):
-	searched = StringField("Searched", validators=[DataRequired()])
-	submit = SubmitField("Search")  
+	submit = SubmitField("Register")  
 	
 class FeedBackForm(FlaskForm):
 	feedback = StringField("Feedback", validators=[DataRequired() , Length(max=300)])
@@ -60,3 +56,8 @@ class UploadFeedBackForm(FlaskForm):
 	feedback = StringField("Feedback",validators=[DataRequired()])
 	rating = IntegerField("Rating",validators = [DataRequired(),NumberRange(min=0,max=5)])
 	submit = SubmitField("Give Feedback") 
+
+class SearchForm(FlaskForm):
+	search = SearchField("Enter what you are looking for",validators=[DataRequired()])
+	lookfor = SelectField("Search for:",choices= [("Books","Books"),("Authors","Authors"),("Sections","Sections")])
+	submit = SubmitField("Search") 
