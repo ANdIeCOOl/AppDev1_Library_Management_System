@@ -9,6 +9,8 @@
 </div>
 <div class="mx-auto p-2" style="width: 200px;">
     <a href="{{url_for('UserRequestSubmit',book_id=book.id)}}" class="btn btn-warning " >Request {{book.title}}</a>
+    <br> <br>
+    <a href="{{url_for('ReadBook',book_id=book.id)}}" class="btn btn-success " >Read {{book.title}}</a>
 </div>
 
 

@@ -459,6 +459,16 @@ def ReturnBook(book_id):
             for error in errorMessages:
                 flash(error,category="danger")
         return redirect(url_for("ModifyUser",user_id = current_user.id))
+    
+@login_required
+@app.route("/Taken/<int:book_id>",methods = ["GET","POST"])
+def TakeBook(book_id):
+    db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+    db.session.commit()
+    flash("You have exceeded the time Limit for you Book",category="warning")
+    return redirect(url_for("ModifyUser",user_id = current_user.id))
+
+
 
 
 
@@ -475,6 +485,7 @@ def DeleteUser(user_id):
         if current_user.role == "Administrator":
             user = Users.query.filter_by(id = user_id).first()
             if user:
+                db.session.execute(users_books.delete().where(users_books.columns.user_id == user.id))
                 db.session.delete(user)
                 db.session.commit()
                 flash(f"Account has been deleted" , 
@@ -485,6 +496,7 @@ def DeleteUser(user_id):
             flash("What you sow you shall reap \n Your account has been deleted" , 
                 category="danger")
             user = Users.query.filter_by(id = current_user.id).first()
+            db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id))
             logout_user()
             db.session.delete(user)
             db.session.commit()
@@ -562,6 +574,22 @@ def Section(section_id):
     
 
 
+@app.route("/Sections/DELETE <int:section_id>" , methods = ['GET' , 'POST'])
+@login_required
+def DeleteSection(section_id):
+    if (current_user.role == "Administrator"):
+        section = SectionTable.query.filter_by(id = section_id).first()
+        try:
+            books = BooksTable.query.filter_by(section_id = section_id).all()
+            for book in books:
+                book.section_id = None
+        except:
+            flash("SOME ERROR IN DELTETING SECTION",category = "warning")
+        db.session.delete(section)
+        db.session.commit()
+        flash(f"Section has been deleted",category="danger")
+        return redirect(url_for("Sections"))
+
 
 
 #--------------------------------------------------------------------------------------
@@ -590,7 +618,7 @@ def Books():
             book = BooksTable(title = form.title.data , 
                         author = form.author.data ,
                         description =form.description.data ,
-                        content=form.content.data.read(),
+                        content=b64encode(form.content.data.read()),
                         section_id = form.section_id.data
                         )
             db.session.add(book)
@@ -673,20 +701,33 @@ def Book(book_id):
                                 feedback.feedback,
                                 feedback.rating
                                 ))
+        
           
         return render_template("UserBookInfo.html",book = book,feedbacks = feedbacks,section = section)
 
 #--------------------
 #READ A BOOK
 #---------
+@app.route('/ReadPDF/<book_id>')
+def ReadinBrowser(book_id):
+    if book_id is not None:
+        book = BooksTable.query.filter_by(id = book_id).first()
+        pdf = book.content
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = \
+            'inline; filename=%s.pdf' % 'yourfilename'
+        return response
     
 from datetime import date
+from flask import make_response
 @app.route("/Books/<int:book_id>/Read" , methods = ['GET' , 'POST'])
 @login_required
 def ReadBook(book_id):
         
         
-        entries = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        entry = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id)).first()
+        """
         for row in entries:
             print("---------- \n ------------\n ------------ \n")
             print(date.today())
@@ -698,12 +739,29 @@ def ReadBook(book_id):
             print(dor)
             print(doi)
             print("---------- \n ------------\n ------------ \n")
-        if dor > date.today():
-            pass # access book
+         
+           """
+        if entry:
+            x = entry[2].rsplit("/")
+
+            dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
+            if dor > date.today():
+                book = BooksTable.query.filter_by(id = book_id).first()
+                
+                pdf_blob = book.content
+
+
+                if pdf_blob[0:4] != b'%PDF':
+                    flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian')
+                    return redirect(url_for("ModifyUser",user_id = current_user.id))
+                
+                return render_template("ReadingBook.html",book_id = book_id)
+            else:
+                return redirect(url_for("TakeBook",book_id = book_id))
+
         else:
-            pass # return book
-        
-        return "<h1> Reading User</h1>"
+            flash("You dont have access to this Book." , category="warning")
+            return redirect(url_for("ModifyUser",user_id = current_user.id))
 
 #--------------------------------------------------------------------------------------
 #Book DELETETION
@@ -715,6 +773,7 @@ def DeleteBook(book_id):
         if current_user.role == "Administrator":
             book = BooksTable.query.filter_by(id = book_id).first()
             if book:
+                db.session.execute(users_books.delete().where(users_books.columns.book_id==book_id))
                 db.session.delete(book)
                 db.session.commit()
                 flash(f"Book has been deleted" , 
