@@ -59,7 +59,6 @@ app.config is configuration of the Flask app
 """
 app.config['SECRET_KEY'] = '123456'
 
-#app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LMS.db'
 
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///LMS.db'
 
@@ -76,7 +75,7 @@ db = SQLAlchemy()
 
 # connects to a SQLite database, which is stored in the app’s instance folder.
 db.init_app(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db ,render_as_batch=True)
 
 
 #------------------------------------------------------------------------

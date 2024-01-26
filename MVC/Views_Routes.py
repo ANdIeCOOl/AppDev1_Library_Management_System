@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from base64 import b64encode,b64decode
 
 
-
+#NAV BAR SEARCH FORM
 @app.context_processor
 def base():
     form1 = Controller_Forms.SearchForm()
@@ -50,6 +50,11 @@ def login():
         if user:              
             if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)
+                
+                current_user.logins = current_user.logins + 1
+                current_user.verified = True
+                db.session.commit()
+
                 flash("Login Successfull" , category="success")
                 return redirect(url_for("Home"))
             else:
@@ -77,7 +82,7 @@ def logout():
 
 
 
-#REGISTER-------------------
+#REGISTER-------------------IMPORTANT
 # still need to check why form.validate on submit not working
 # thats proabably because some validation criteria is not being met check 
 #  modifyusers function do that xD
@@ -201,6 +206,15 @@ def UserRequestSubmit(book_id):
         if len(current_user.books) < 5:
             try:
                 requests = RequestsTable(user_id = current_user.id,book_id = book_id)
+                book = BooksTable.query.filter_by(id = book_id).first()
+                book.requests = book.requests + 1
+                book.verified = True
+                current_user.no_books_requested += 1
+                if book.section_id:
+                    section = SectionTable.query.filter_by(id = book.section_id).first()
+                    section.requests += 1
+                    section.verified = True
+
                 db.session.add(requests)
                 db.session.commit()
                 flash("Your request has been sumbitted.\n Waiting for confirmation",category="success")
@@ -450,6 +464,19 @@ def ReturnBook(book_id):
                                   feedback = form.feedback.data,
                                   rating = form.rating.data
                                   )
+        book = BooksTable.query.filter_by(id = book_id).first()
+        n = Feedbacks.query.filter_by(book_id = book_id).count()
+        ratings = Feedbacks.query.filter_by(book_id = book_id).all()
+        sum = 0
+        for rating in ratings:
+            sum += rating.rating
+
+
+        if n == 0:
+            book.rating = form.rating.data 
+        else:
+            book.rating = (form.rating.data + sum)/n
+        book.verified = True
         db.session.add(feedback)
         db.session.commit()
         flash("Thank you for the feedback",category="success")
@@ -563,6 +590,9 @@ Lvl 2
 @login_required
 def Section(section_id):
     section = SectionTable.query.filter_by(id = section_id).first()
+    section.visits += 1
+    section.verified = True
+    db.session.commit() 
     try:
         books = BooksTable.query.filter_by(section_id = section_id).all()
     except:
@@ -570,6 +600,7 @@ def Section(section_id):
     if (current_user.role == "Administrator"):
         return render_template("AdminParticularSection.html",books = books,section = section)
     else:
+        
         return render_template("UserParticularSection.html",books = books,section = section)
     
 
@@ -618,11 +649,14 @@ def Books():
             book = BooksTable(title = form.title.data , 
                         author = form.author.data ,
                         description =form.description.data ,
-                        content=b64encode(form.content.data.read()),
+                        content=form.content.data.read(),
                         section_id = form.section_id.data
                         )
+            
             db.session.add(book)
             db.session.commit() 
+           
+            
             flash("Upload Successfull" , category="success")
             return redirect(url_for("Books"))
         
@@ -689,6 +723,18 @@ def Book(book_id):
             print("Test  5 ------ \n --------\n")
             return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section)
     else:
+        
+        book = BooksTable.query.filter_by( id = book_id).first()
+        book.visits = book.visits + 1
+        book.verified = True
+        section = SectionTable.query.filter_by(id = book.section_id).first()
+        if section:
+            section.visits += 1
+            section.verified = True
+        
+        db.session.commit()
+
+        
         book = BooksTable.query.filter_by( id = book_id).first()
         section = SectionTable.query.filter_by(id = book.section_id).first()
         if section:
@@ -774,6 +820,8 @@ def DeleteBook(book_id):
             book = BooksTable.query.filter_by(id = book_id).first()
             if book:
                 db.session.execute(users_books.delete().where(users_books.columns.book_id==book_id))
+                feedbacks = Feedbacks.query.filter_by(book_id = book_id)
+                db.session.delete(feedbacks)
                 db.session.delete(book)
                 db.session.commit()
                 flash(f"Book has been deleted" , 
