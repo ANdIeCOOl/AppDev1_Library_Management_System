@@ -6,7 +6,7 @@ from MVC.Model import Requests as RequestsTable
 from MVC.Model import Books as BooksTable
 from MVC.Model import Feedbacks 
 from MVC import db
-
+from io import BytesIO
 
 from flask import render_template, url_for,redirect,flash,request
 from flask_login import login_user, logout_user, login_required, current_user, login_manager
@@ -317,6 +317,10 @@ def RevokeBook(book_id,user_id):
 
 #--------------------------------------------------------------------------------------
 #ANALYTICS-------------------------------------------------------------------------------
+#-------
+from matplotlib.figure import Figure 
+import matplotlib.pyplot as plt
+
 """
 LVL 1
 """
@@ -326,7 +330,7 @@ def Analytics():
     if (current_user.role == "Administrator"):
         return render_template("AdminAnalytics.html")
     else:
-        return render_template("UserAnalytics.html")
+        return render_template("Analytics_for_User.html")
 
 """
 LVL 2
@@ -335,7 +339,43 @@ LVL 2
 @app.route("/Analytics/Users" , methods = ['GET' , 'POST'])
 @login_required
 def UsersAnalytics():
-    pass
+    if current_user.role == "Administrator":
+        pass #Show all USer data
+    else:
+        user_login_data = None
+        users = db.session.execute(db.select(Users)).scalars()
+        n = 2
+        #compare user login with avg user login--> categorical bargraph
+        sum = 0
+        
+        
+        if n > 0 :
+            for user in users:
+                
+                if user.role != "Administrator":
+                    sum += user.logins
+            plt.style.use('dark_background')
+            fig, ax = plt.subplots()
+
+            ax.plot([1,2])
+            user_axis = [current_user.name , "Other Users Average"]
+            login_axis = [current_user.logins , sum/n ]
+            bar_container = ax.bar(user_axis, login_axis)
+            ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
+            ax.bar_label(bar_container, fmt='{:,.0f}')
+
+
+            buf = BytesIO()
+
+            fig.savefig(buf , format = "png")
+
+            user_login_data = b64encode(buf.getbuffer()).decode("ascii")
+            return f"<img src='data:image/png;base64,{user_login_data}'/>"
+
+
+        #compare user books requested with avg user books requested --> categorical bargraph
+        # users feed backs of books bookname-->x axis , rating --> y axis
+
 
 #System Analytics Visits CLicks etc
 @app.route("/Analytics/System" , methods = ['GET' , 'POST'])
