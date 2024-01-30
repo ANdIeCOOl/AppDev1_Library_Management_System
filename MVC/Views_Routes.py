@@ -318,8 +318,9 @@ def RevokeBook(book_id,user_id):
 #--------------------------------------------------------------------------------------
 #ANALYTICS-------------------------------------------------------------------------------
 #-------
-from matplotlib.figure import Figure 
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 """
 LVL 1
@@ -344,25 +345,66 @@ def UsersAnalytics():
     else:
         user_login_data = None
         users = db.session.execute(db.select(Users)).scalars()
-        n = 2
+        feedbacks = Feedbacks.query.filter_by(user_id = current_user.id).all()
+        user_feedback = 0
+        sum = [0,0,0]
+        f=0
+        if feedbacks:
+            for feedback in feedbacks:
+                user_feedback += feedback.rating
+            user_feedback /= len(feedbacks)
+            feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
+            for feedback in feedbacks:
+                sum[2] += feedback.rating
+        n = db.session.query(Users).count() - 1 
+        f = db.session.query(Feedbacks).count()
+        if f == 0:
+            f = 1
         #compare user login with avg user login--> categorical bargraph
-        sum = 0
+
         
         
         if n > 0 :
             for user in users:
                 
                 if user.role != "Administrator":
-                    sum += user.logins
+                    sum[0] += user.logins
+                    sum[1]+=user.no_books_requested
+            All_info = ["User Logins","User Book Requests","User Feedbacks Rating"]
+            Some_data = {
+                "You":(current_user.logins ,current_user.no_books_requested,user_feedback ),
+                "Avg_User":(round(sum[0]/n),round(sum[1]/n),round(sum[2]/f))
+            }
+            
+            
             plt.style.use('dark_background')
-            fig, ax = plt.subplots()
+            """fig, ax = plt.subplots()
 
             ax.plot([1,2])
             user_axis = [current_user.name , "Other Users Average"]
             login_axis = [current_user.logins , sum/n ]
             bar_container = ax.bar(user_axis, login_axis)
             ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
-            ax.bar_label(bar_container, fmt='{:,.0f}')
+            ax.bar_label(bar_container, fmt='{:,.0f}')"""
+
+            x = np.arange(len(All_info))  # the label locations
+            width = 0.25  # the width of the bars
+            multiplier = 0
+
+            fig, ax = plt.subplots(layout='constrained')
+
+            for attribute, measurement in Some_data.items():
+                offset = width * multiplier
+                rects = ax.bar(x + offset, measurement, width, label=attribute)
+                ax.bar_label(rects, padding=3)
+                multiplier += 1
+
+            # Add some text for labels, title and custom x-axis tick labels, etc.
+            ax.set_ylabel('No of ')
+            ax.set_title('You Vs Average User')
+            ax.set_xticks(x + width, All_info)
+            ax.legend(loc='upper left', ncols=3)
+            ax.set_ylim(0,max(sum))
 
 
             buf = BytesIO()
@@ -370,7 +412,7 @@ def UsersAnalytics():
             fig.savefig(buf , format = "png")
 
             user_login_data = b64encode(buf.getbuffer()).decode("ascii")
-            return f"<img src='data:image/png;base64,{user_login_data}'/>"
+            return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
 
 
         #compare user books requested with avg user books requested --> categorical bargraph
@@ -386,7 +428,80 @@ def SystemAnalytics():
 @app.route("/Analytics/Books" , methods = ['GET' , 'POST'])
 @login_required
 def BooksAnalytics():
-    pass
+    if current_user.role == "Administrator":
+        pass #Show all USer data
+    else:
+        user_login_data = None
+        users = db.session.execute(db.select(Users)).scalars()
+        feedbacks = Feedbacks.query.filter_by(user_id = current_user.id).all()
+        user_feedback = 0
+        sum = [0,0,0]
+        f=0
+        if feedbacks:
+            for feedback in feedbacks:
+                user_feedback += feedback.rating
+            user_feedback /= len(feedbacks)
+            feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
+            for feedback in feedbacks:
+                sum[2] += feedback.rating
+        n = db.session.query(Users).count() - 1 
+        f = db.session.query(Feedbacks).count()
+        if f == 0:
+            f = 1
+        #compare user login with avg user login--> categorical bargraph
+
+        
+        
+        if n > 0 :
+            for user in users:
+                
+                if user.role != "Administrator":
+                    sum[0] += user.logins
+                    sum[1]+=user.no_books_requested
+            All_info = ["User Logins","User Book Requests","User Feedbacks Rating"]
+            Some_data = {
+                "You":(current_user.logins ,current_user.no_books_requested,user_feedback ),
+                "Avg_User":(round(sum[0]/n),round(sum[1]/n),round(sum[2]/f))
+            }
+            
+            
+            plt.style.use('dark_background')
+            """fig, ax = plt.subplots()
+
+            ax.plot([1,2])
+            user_axis = [current_user.name , "Other Users Average"]
+            login_axis = [current_user.logins , sum/n ]
+            bar_container = ax.bar(user_axis, login_axis)
+            ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
+            ax.bar_label(bar_container, fmt='{:,.0f}')"""
+
+            x = np.arange(len(All_info))  # the label locations
+            width = 0.25  # the width of the bars
+            multiplier = 0
+
+            fig, ax = plt.subplots(layout='constrained')
+
+            for attribute, measurement in Some_data.items():
+                offset = width * multiplier
+                rects = ax.bar(x + offset, measurement, width, label=attribute)
+                ax.bar_label(rects, padding=3)
+                multiplier += 1
+
+            # Add some text for labels, title and custom x-axis tick labels, etc.
+            ax.set_ylabel('No of ')
+            ax.set_title('You Vs Average User')
+            ax.set_xticks(x + width, All_info)
+            ax.legend(loc='upper left', ncols=3)
+            ax.set_ylim(0,max(sum))
+
+
+            buf = BytesIO()
+
+            fig.savefig(buf , format = "png")
+
+            user_login_data = b64encode(buf.getbuffer()).decode("ascii")
+            return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
+
 #Section Analytics highest rating, most visted etc
 @app.route("/Analytics/Sections" , methods = ['GET' , 'POST'])
 @login_required
