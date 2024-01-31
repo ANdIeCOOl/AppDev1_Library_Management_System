@@ -429,7 +429,7 @@ def SystemAnalytics():
 @login_required
 def BooksAnalytics(): #ALL BOOKS
     if current_user.role == "Administrator":
-        pass #Show all USer data
+        pass #Same as user
     else:
         requests = []
         visits = []
@@ -459,15 +459,103 @@ def BooksAnalytics(): #ALL BOOKS
 
         fig.savefig(buf , format = "png")
 
-        book_data = b64encode(buf.getbuffer()).decode("ascii")
-        return render_template ("SingleUserProfileAnalytics.html", user_login_data= book_data)
+        book_data1 = b64encode(buf.getbuffer()).decode("ascii")
+
+        plt.style.use('dark_background') 
+        fig, ax = plt.subplots(layout='constrained')
+        colors = np.random.rand(n)
+        plt.scatter(requests, rating, c=colors)
+        ax.set_title('Ratings Vs Requests for all the Books')
+        ax.set_ylabel('Ratings ')
+        ax.set_xlabel('Requests ')
+
+        buf = BytesIO()
+
+        fig.savefig(buf , format = "png")
+
+        book_data2 = b64encode(buf.getbuffer()).decode("ascii")
+
+        plt.style.use('dark_background') 
+        fig, ax = plt.subplots(layout='constrained')
+        colors = np.random.rand(n)
+        plt.scatter( rating, visits ,c=colors)
+        ax.set_title('Visits Vs Ratings for all the Books')
+        ax.set_ylabel('Visits ')
+        ax.set_xlabel('Rating ')
+
+        buf = BytesIO()
+
+        fig.savefig(buf , format = "png")
+
+        book_data3 = b64encode(buf.getbuffer()).decode("ascii")
+
+
+
+        return render_template ("Books_ANAlytics.html",book_data1 = book_data1 
+                                                        ,book_data2= book_data2
+                                                        ,book_data3= book_data3)
 
 #Section Analytics highest rating, most visted etc
 @app.route("/Analytics/Sections" , methods = ['GET' , 'POST'])
 @login_required
 def SectionsAnalytics():
-    pass
+    sections = db.session.execute(db.select(SectionTable)).scalars()
+    if sections:
+        names = []
+        visits = []
+        requests = []
+        for section in sections:
+            names.append(section.name)
+            visits.append(section.visits)
+            requests.append(section.requests)        
 
+
+
+        All_info = [name for name in names]
+        Some_data = {
+            "Visits":visits,
+            "Requests":requests 
+        }
+                    
+        plt.style.use('dark_background')
+        """fig, ax = plt.subplots()
+            ax.plot([1,2])
+            user_axis = [current_user.name , "Other Users Average"]
+            login_axis = [current_user.logins , sum/n ]
+            bar_container = ax.bar(user_axis, login_axis)
+            ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
+            ax.bar_label(bar_container, fmt='{:,.0f}')"""
+
+        x = np.arange(len(All_info))  # the label locations
+        width = 0.25  # the width of the bars
+        multiplier = 0
+        fig, ax = plt.subplots(layout='constrained')
+
+        for attribute, measurement in Some_data.items():
+            offset = width * multiplier
+            rects = ax.bar(x + offset, measurement, width, label=attribute)
+            ax.bar_label(rects, padding=3)
+            multiplier += 1
+
+        # Add some text for labels, title and custom x-axis tick labels, etc.
+        ax.set_ylabel('Count')
+        ax.set_title('Sectionwise Visits and Requests')
+        ax.set_xticks(x + width, All_info)
+        ax.legend(loc='upper left', ncols=3)
+        ax.set_ylim(0,max(max(visits),max(requests)) + 30)
+
+
+        buf = BytesIO()
+
+        fig.savefig(buf , format = "png")
+
+        user_login_data = b64encode(buf.getbuffer()).decode("ascii")
+        return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
+    
+    
+    else:
+        flash("There no Sections to Display Analytics",category="warning")
+        return redirect(url_for("Analytics"))
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
 #USER HOMEPAGE FOR USER
