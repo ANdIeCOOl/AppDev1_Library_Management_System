@@ -145,6 +145,7 @@ def Home():
 def Search():
     form1 = Controller_Forms.SearchForm()
     if form1.validate_on_submit:
+        
         search = f"%{form1.search.data}%"
         search_in = form1.lookfor.data
         print(search_in) 
@@ -265,7 +266,9 @@ def AcceptRequest(request_id):
             db.session.commit() #ITS NEED TO MAKED CHANGES PERMANANT LOL
             return redirect(url_for("Requests"))
         else:
-            flash("User can only have a maximum of 5 books in your Personal Library")
+            flash("User can have maximum of five books",category="warning")
+            db.session.delete(request)
+            db.session.commit() 
             return redirect(url_for("Requests"))
 
     else:
@@ -341,7 +344,61 @@ LVL 2
 @login_required
 def UsersAnalytics():
     if current_user.role == "Administrator":
-        pass #Show all USer data
+        
+        plt.style.use('dark_background')
+        users = db.session.execute(db.select(Users)).scalars()
+        if users:
+            names = []
+            visits = []
+            requests = []
+            for section in users:
+                names.append(section.name)
+                visits.append(section.logins)
+                requests.append(section.no_books_requested)        
+
+
+
+            All_info = [name for name in names]
+            Some_data = {
+                "Logins":visits,
+                "Requests":requests 
+            }
+                        
+            plt.style.use('dark_background')
+            """fig, ax = plt.subplots()
+                ax.plot([1,2])
+                user_axis = [current_user.name , "Other Users Average"]
+                login_axis = [current_user.logins , sum/n ]
+                bar_container = ax.bar(user_axis, login_axis)
+                ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
+                ax.bar_label(bar_container, fmt='{:,.0f}')"""
+
+            x = np.arange(len(All_info))  # the label locations
+            width = 0.25  # the width of the bars
+            multiplier = 0
+            fig, ax = plt.subplots(layout='constrained')
+
+            for attribute, measurement in Some_data.items():
+                offset = width * multiplier
+                rects = ax.bar(x + offset, measurement, width, label=attribute)
+                ax.bar_label(rects, padding=3)
+                multiplier += 1
+
+            # Add some text for labels, title and custom x-axis tick labels, etc.
+            ax.set_ylabel('Count')
+            ax.set_title('Sectionwise Visits and Requests')
+            ax.set_xticks(x + width, All_info)
+            ax.legend(loc='upper left', ncols=3)
+            ax.set_ylim(0,max(max(visits),max(requests)) + 30)
+
+            buf = BytesIO()
+
+            fig.savefig(buf , format = "png")
+
+            user_login_data = b64encode(buf.getbuffer()).decode("ascii")
+            return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
+
+    
     else:
         user_login_data = None
         users = db.session.execute(db.select(Users)).scalars()
@@ -428,9 +485,6 @@ def SystemAnalytics():
 @app.route("/Analytics/Books" , methods = ['GET' , 'POST'])
 @login_required
 def BooksAnalytics(): #ALL BOOKS
-    if current_user.role == "Administrator":
-        pass #Same as user
-    else:
         requests = []
         visits = []
         rating = []
@@ -716,6 +770,8 @@ def DeleteUser(user_id):
             user = Users.query.filter_by(id = user_id).first()
             if user:
                 db.session.execute(users_books.delete().where(users_books.columns.user_id == user.id))
+                Feedbacks.query.filter(id =user_id).delete()
+                #CHECK IF DELETING ROW
                 db.session.delete(user)
                 db.session.commit()
                 flash(f"Account has been deleted" , 

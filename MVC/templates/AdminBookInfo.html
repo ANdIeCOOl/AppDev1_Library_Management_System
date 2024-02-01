@@ -161,6 +161,7 @@
             <h5 class="card-title">{{reader.username}}</h5>
             <p class="card-text">Name: {{reader.name}}</p>
             <p class="card-text"><small class="text-body-secondary">Role:{{reader.role}}</small></p>
+            <a href="{{url_for('ModifyUser' , user_id = reader.id)}}" class="btn btn-primary  stretched-link">View Profile</a>
             </div>
         </div>
         </div>
