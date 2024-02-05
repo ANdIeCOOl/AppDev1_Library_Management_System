@@ -13,7 +13,7 @@
 
     <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
         <div class="mx-auto " style="width: 25rem;height: 15rem;">
-            <img src="#" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+            <img src="data:;base64,{{ book_pic }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
         </div>
         <div class="card-body">
           <h5 class="card-title">{{book.title}}</h5>
@@ -60,6 +60,8 @@
 
                                         {{ form.content.label(data=form.content.data) }}
                                         {{ form.content() }}
+                                        {{ form.book_pic.label() }}
+                                        {{ form.book_pic() }}
                                 
                                         <br>
                                         {{ form.submit(class="btn btn-lg btn-block btn-primary") }}

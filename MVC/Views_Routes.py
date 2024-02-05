@@ -7,6 +7,8 @@ from MVC.Model import Books as BooksTable
 from MVC.Model import Feedbacks 
 from MVC import db
 from io import BytesIO
+import fitz
+from PIL import Image
 
 from flask import render_template, url_for,redirect,flash,request
 from flask_login import login_user, logout_user, login_required, current_user, login_manager
@@ -641,8 +643,10 @@ def ModifyUser(user_id):
 
         if form.validate_on_submit():
             user = Users.query.filter_by(id = user_id).first()
-            user.username = form.username.data
-            user.name = form.name.data
+            if form.name.data:
+                user.name = form.name.data
+            if form.username.data:
+                user.username = form.username.data
             if form.profile_pic.data:
                 user.profile_pic = form.profile_pic.data.read()
             user.verified = True
@@ -689,21 +693,41 @@ def ModifyUser(user_id):
             pass
         else:"""
         form = Controller_Forms.EditUserForm()
-        Profile_image = None
-        try:
-            Profile_image = b64encode(current_user.profile_pic).decode("utf-8")
-        except:
-            pass
-        books = []
-        for book in current_user.books:
-            if book.book_pic:
-                books.append((BooksTable.query.filter_by(id = book.id).first(),
-                        b64encode(book.book_pic).decode("utf-8")))
-            else:
-                books.append((BooksTable.query.filter_by(id = book.id).first(),
-                                    None))
-                    
-        return render_template("UserProfile.html",form=form,books=books,Profile_image=Profile_image)
+        if form.validate_on_submit():
+            user = Users.query.filter_by(id = current_user.id).first()
+            if form.name.data:
+                user.name = form.name.data
+            if form.username.data:
+                user.username = form.username.data
+            if form.profile_pic.data:
+                user.profile_pic = form.profile_pic.data.read()
+            user.verified = True
+            db.session.commit()
+            flash("Update Successfull" , category="success")
+            return redirect(url_for("ModifyUser",user_id = current_user.id))
+
+            
+        elif request.method == "POST":
+            for fieldName, errorMessages in form.errors.items():
+                for error in errorMessages:
+                    flash(error,category="danger")
+            return redirect(url_for("ModifyUser",user_id = current_user.id))
+        else:
+            Profile_image = None
+            try:
+                Profile_image = b64encode(current_user.profile_pic).decode("utf-8")
+            except:
+                pass
+            books = []
+            for book in current_user.books:
+                if book.book_pic:
+                    books.append((BooksTable.query.filter_by(id = book.id).first(),
+                            b64encode(book.book_pic).decode("utf-8")))
+                else:
+                    books.append((BooksTable.query.filter_by(id = book.id).first(),
+                                        None))
+                        
+            return render_template("UserProfile.html",form=form,books=books,Profile_image=Profile_image)
 
 #RETURNING AND FEEDBACK-----------
 @login_required
@@ -904,12 +928,16 @@ def Books():
         except:
             pass"""
         
-        if form.validate_on_submit() or request.method == "POST":
+        if form.validate_on_submit():
+            content1=form.content.data.read()
+            section_id = None
+            if form.section_id.data:
+                section_id = form.section_id.data
             book = BooksTable(title = form.title.data , 
                         author = form.author.data ,
                         description =form.description.data ,
-                        content=form.content.data.read(),
-                        section_id = form.section_id.data
+                        content=content1,
+                        section_id =section_id
                         )
             
             db.session.add(book)
@@ -947,6 +975,8 @@ def Book(book_id):
                 #also read pdf and put the first page as book_pic
             if form.section_id.data:
                 book.section_id = form.section_id.data
+            if form.book_pic.data:
+                book.book_pic = form.book_pic.data.read()
 
             book.verified = True
             db.session.commit()    
@@ -963,6 +993,11 @@ def Book(book_id):
 
             
             book = BooksTable.query.filter_by( id = book_id).first()
+            book_pic = None
+            try:
+                book_pic = b64encode(book.book_pic).decode("utf-8")
+            except:
+                pass
             readers = book.current_readers
             print("Test 1 ------ \n --------\n")
             section = SectionTable.query.filter_by(id = book.section_id).first()
@@ -980,7 +1015,7 @@ def Book(book_id):
                                 feedback.rating
                                 ))
             print("Test  5 ------ \n --------\n")
-            return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section)
+            return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section,book_pic = book_pic)
     else:
         
         book = BooksTable.query.filter_by( id = book_id).first()
