@@ -28,54 +28,35 @@
               {% if current_user.is_authenticated%}
 
 
-                  {%if current_user.role == "Administrator"%}
+
+                     
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{url_for('Home')}}">Home</a>
                       </li>
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{url_for('Books')}}">Books</a>>
-                      </li>
+                      
+                      
+                    {%if current_user.role == "Administrator"%}
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{{url_for('ALLUsers')}}">Users</a>
                       </li>
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{url_for('Analytics')}}">Analytics</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{url_for('Requests')}}">Requests</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{url_for('Sections')}}">Sectionss</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{url_for('logout')}}">Logout</a>
-                      </li>
-                    
-                    {%else %}
-                    <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{url_for('Home')}}">Home</a>
-                    </li>
+                    {% endif %}
 
                     <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{url_for('Sections')}}">Sections</a>
+                      <a class="nav-link active" aria-current="page" href="{{url_for('Books')}}">Books</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link active" aria-current="page" href="{{url_for('Analytics')}}">Analytics</a>
-                  
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="{{url_for('Requests')}}">Requests</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="{{url_for('Sections')}}">Sections</a>
+                    </li>
 
-                    <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{url_for('Home')}}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="{{url_for('Books')}}">Books</a>>
-                    </li>
                     <li class="nav-item">
                       <a class="nav-link active" aria-current="page" href="{{url_for('logout')}}">Logout</a>
                     </li>
-                   
-
-                  {% endif %}
-
 
 
             {% else %}

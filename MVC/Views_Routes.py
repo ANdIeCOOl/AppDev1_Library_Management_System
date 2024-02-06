@@ -756,7 +756,7 @@ def ReturnBook(book_id):
         if n == 0:
             book.rating = form.rating.data 
         else:
-            book.rating = (form.rating.data + sum)/n
+            book.rating = (form.rating.data + sum)/n+1
         book.verified = True
         db.session.add(feedback)
         db.session.commit()
@@ -1033,6 +1033,12 @@ def Book(book_id):
         section = SectionTable.query.filter_by(id = book.section_id).first()
         if section:
             section = section.name
+
+        book_pic = None
+        try:
+            book_pic = b64encode(book.book_pic).decode("utf-8")
+        except:
+            pass
         bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
         feedbacks = []
         for feedback in bookFeedback:
@@ -1043,7 +1049,7 @@ def Book(book_id):
                                 ))
         
           
-        return render_template("UserBookInfo.html",book = book,feedbacks = feedbacks,section = section)
+        return render_template("UserBookInfo.html",book = book,feedbacks = feedbacks,section = section,book_pic = book_pic)
 
 #--------------------
 #READ A BOOK
@@ -1134,6 +1140,78 @@ def DeleteBook(book_id):
 
 
 
+
+
+import json
+@app.route("/api/Books")
+def Api_Books():
+    mydict = {}
+    books = db.session.execute(db.select(BooksTable)).scalars()
+    for book in books:
+        mydict[book.title] = {"Rating":book.rating,"Requests":book.requests,"Visits":book.visits,"Title":book.title,"Author":book.author,"Description":book.description}
+
+    stud_json = json.dumps(mydict, indent=6, sort_keys=True)
+    return (f"""<h1>Books API</h1>
+                               <div ="BooksAPI"> Books:{stud_json} </div>
+                               <br><br>
+
+                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
+                                
+                                """)
+
+
+@app.route("/api/Sections")
+def Api_Sections():
+    mydict = {}
+    sections = db.session.execute(db.select(SectionTable)).scalars()
+    for section in sections:
+        mydict[section.name] = {"Name":section.name,"Visits":section.visits,"Requests":section.requests,"Description":section.description}
+
+    stud_json = json.dumps(mydict, indent=6, sort_keys=True)
+    return (f"""<h1>Sections API</h1>
+                               <div id ="SectionsAPI">Sections:{stud_json}</div>
+                               <br><br>
+
+                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
+                                
+                                """)
+
+
+@app.route("/api/Analytics")
+def Api_Analytics():
+    pass
+    users = db.session.execute(db.select(Users)).scalars()
+    if users:
+        names = []
+        visits = []
+        requests = []
+        for section in users:
+            names.append(section.name)
+            visits.append(section.logins)
+            requests.append(section.no_books_requested)        
+
+
+
+        All_info = [name for name in names]
+        Some_data = {
+            "Logins":visits,
+            "Requests":requests 
+            }
+
+        stud_json = json.dumps(Some_data, indent=6, sort_keys=True)
+        mydict = {}
+        feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
+        for feedback in feedbacks:
+            mydict[feedback.book_id] = {"FeedBack":feedback.feedback,"Rating":feedback.rating}
+        stud_json1 = json.dumps(mydict, indent=6, sort_keys=True)
+        return (f"""<h1>Analytics API</h1>
+                               <div id ="LoginsVSRequestsAPI">LoginsVSRequests:{stud_json}</div>
+                               <br> <br> <br>
+                               <div id ="BookFeedbacksAPI">Feedbacks:{stud_json1}</div>
+                               <br><br>
+
+                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
+                                """)
 
  #######################################################################
 
