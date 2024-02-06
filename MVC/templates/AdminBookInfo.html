@@ -1,13 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Viweing BookInfo</h1>
-    <!-- Need DB data for information on books -->
-    <h2> Options to Delete Book, Modify book this  book</h2>
-</body>
-</html>
+{% extends  'base.html' %}
+{%block title %} 
+ {{book.title}}
+{% endblock %}
+{% block content %}
+
+<div class="mx-auto p-2" style="width: 200px;">
+    <h1 style="color: white;" class="display-1 ">{{book.title}}</h1>
+</div>
+ 
+
+
+
+    <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
+        <div class="mx-auto " style="width: 25rem;height: 15rem;">
+            <img src="data:;base64,{{ book_pic }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{book.title}}</h5>
+          <span class="btn btn-primary">{{section}}</span>
+          <p class="card-text"> {{book.description}}</p>
+          <span class="btn btn-primary"> Rating : {{book.rating}}</span>
+
+
+          <br><br>
+                     <!-- Button trigger modal -->
+                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                        Update Book
+                    </button>
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Update User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                
+                                <div class="container">
+
+
+
+
+                                    <form method = "POST" enctype="multipart/form-data">
+                                        {{form.hidden_tag()}}
+                                        
+                                        {{ form.title.label() }}
+                                        {{ form.title(data=form.title.data,class="form-control", placeholder="Enter title")}}
+                                
+                                        {{ form.author.label() }}
+                                        {{ form.author(data=form.author.data,class="form-control", placeholder="Enter Author name") }}
+                                
+                                        {{ form.description.label() }}
+                                        {{ form.description(data=form.description.data,class="form-control", placeholder="Password") }}
+                                
+                                        {{ form.section_id.label() }}
+                                        {{ form.section_id(class="form-control", placeholder="Not necessary") }}
+
+                                        {{ form.content.label(data=form.content.data) }}
+                                        {{ form.content() }}
+                                        {{ form.book_pic.label() }}
+                                        {{ form.book_pic() }}
+                                
+                                        <br>
+                                        {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+                                    </form>
+                                
+                                </div>   
+
+                            </div>
+                            <!--
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Understood</button>
+                            </div> -->
+                        </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                                
+
+
+               
+
+
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Delete Book
+                    </button>
+                    
+                    <!-- Modal -->
+                    
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title " id="exampleModalLabel">Are you sure?</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                            ...
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a type = "button" href="{{url_for('DeleteBook' , book_id = book.id)}}" class="btn btn-danger">Delete Book</a>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                  
+
+
+
+
+
+
+
+
+          <span href="#" class="btn btn-primary">Book Analytics</span>
+        </div>
+      
+    </div>
+      
+</div>
+{% if feedbacks %}
+<h1 style="color: white;" class="display-1 ">Feedbacks</h1>
+{% for feedback in feedbacks%}
+    <br>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+        <div class="col-md-4">
+            <img src="..." class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+            <h5 class="card-title">{{feedback[0].name}}</h5>
+            <p class="card-text">{{feedback[2]}}</p>
+            <p class="card-text"><small class="text-body-secondary">Rating:{{feedback[3]}}</small></p>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+{% endfor %}
+{% endif %}
+<br>
+<h1 style="color: white;" class="display-1 ">Current Readers</h1>
+{% for reader in book.current_readers %}
+    <br>
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+        <div class="col-md-4">
+            <img src="..." class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+            <h5 class="card-title">{{reader.username}}</h5>
+            <p class="card-text">Name: {{reader.name}}</p>
+            <p class="card-text"><small class="text-body-secondary">Role:{{reader.role}}</small></p>
+            <a href="{{url_for('ModifyUser' , user_id = reader.id)}}" class="btn btn-primary  stretched-link">View Profile</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+{% endfor %}
+
+
+
+{% endblock content %}

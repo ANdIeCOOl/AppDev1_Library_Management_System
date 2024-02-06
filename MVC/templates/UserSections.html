@@ -1,13 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sections</title>
-</head>
-<body>
-     <h1>VIEWING USER Sections of Books </h1>
-     <h2>Display All Sections From DB and also options to Add and Delete Sections</h2>
-     <h2>Link to particular Section</h2>
-</body>
-</html>
+{% extends  'base.html' %}
+{%block title%} 
+Genres
+{% endblock%}
+{% block content%}
+
+    <div class="mx-auto p-2" style="width: 300px;">
+        <h1 style="color: white;" class="display-1 ">Sections</h1>
+    </div>
+    <div class="container">
+        <div class="row">
+            {% for section in sections %}
+        
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\sectionsimg.jpg" class="card-img-top" alt="..." style="width: 18rem; height: 13rem;">
+                        <div class="card-body">
+                          <h5 class="card-title">{{section.name}}</h5>
+                          <p class="card-text">{{section.description}}</p>
+                          <a href="{{url_for('Section',section_id = section.id)}}" class="btn btn-primary stretched-link">Visit Section</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}
+
+        </div>
+    </div>
+
+{% endblock %}

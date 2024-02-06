@@ -1,6 +1,6 @@
 {% extends  'base.html' %}
 {%block title%} 
-Profiles
+Library
 {% endblock%}
 {% block content%}
 <h1 style="color: white;" class="display-1">Library</h1>
@@ -11,11 +11,11 @@ Profiles
 
                 <div class="col-sm mt-3 mb-3">
                     <div class="card" style="width: 18rem;">
-                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <img src="static\animation.gif" class="card-img-top" alt="..." style="height: 15rem;">
                         <div class="card-body">
                           <h5 class="card-title">{{book.title}}</h5>
                           <p class="card-text"> {{book.description}}</p>
-                          <a href="#" class="btn btn-secondary  stretched-link">View book</a>
+                          <a href="{{url_for('Book' , book_id = book.id)}}" class="btn btn-primary  stretched-link">Go to book</a>
                         </div>
                     </div>
                 </div>
@@ -23,32 +23,68 @@ Profiles
             {% endfor %}
             <div class="col-sm mt-3 mb-3">
                 <div class="card" style="width: 18rem;">
-                    <img src="static\animation.gif" class="card-img-top" alt="...">
+                    <img src="static\add book.png" class="card-img-top" alt="..." style="height: 15rem;">
                     <div class="card-body">
                       <h5 class="card-title">Add Book</h5>
                       <p class="card-text"> 
 
-                        <form method = "POST" enctype="multipart/form-data">
-                            {{form.hidden_tag()}}
-                            
-                            {{ form.title.label() }}
-                            {{ form.title(class="form-control", placeholder="Enter title")}}
-                    
-                            {{ form.author.label() }}
-                            {{ form.author(class="form-control", placeholder="Enter Author name") }}
-                    
-                            {{ form.description.label() }}
-                            {{ form.description(class="form-control", placeholder="Password") }}
-                    
-                            {{ form.section_id.label() }}
-                            {{ form.section_id(class="form-control", placeholder="Not necessary") }}
 
-                            {{ form.content.label() }}
-                            {{ form.content() }}
+                                 <!-- Button trigger modal -->
+                     <button type="button" class="btn btn-primary stretched-link" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                        Upload Book
+                    </button>
                     
-                            <br>
-                            {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
-                        </form>
+                    <!-- Modal -->
+                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Upload Book</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                
+                                <div class="container">
+
+
+
+
+                                    <form method = "POST" enctype="multipart/form-data">
+                                        {{form.hidden_tag()}}
+                                        
+                                        {{ form.title.label() }}
+                                        {{ form.title(data=form.title.data,class="form-control", placeholder="Enter title")}}
+                                
+                                        {{ form.author.label() }}
+                                        {{ form.author(data=form.author.data,class="form-control", placeholder="Enter Author name") }}
+                                
+                                        {{ form.description.label() }}
+                                        {{ form.description(data=form.description.data,class="form-control", placeholder="Password") }}
+                                
+                                        {{ form.section_id.label() }}
+                                        {{ form.section_id(class="form-control", placeholder="Not necessary") }}
+
+                                        {{ form.content.label(data=form.content.data) }}
+                                        {{ form.content() }}
+                                
+                                        <br>
+                                        {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+                                    </form>
+                                
+                                </div>   
+
+                            </div>
+                            <!--
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Understood</button>
+                            </div> -->
+                        </div>
+                        </div>
+                    </div>
+
+
+                        
 
                       </p>
                     </div>

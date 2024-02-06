@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+<h1  style="color: white; text-align-last: center;" >Search Page </h1>
+<br><br>
+<h1  style="color: white; text-align-last: center;" >Results for {{search}} </h1>
+
+</div>
+
+
+<h1 style="color: white;" class="display-1">Looking in {{search_in}}</h1>
+    <div class="container">
+        <div class="row">
+            {% if search_in == "Authors" %}
+            {% for info in data %}
+        
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="..." style="height: 15rem;">
+                        <div class="card-body">
+                          <h5 class="card-title">{{info.title}}</h5>
+                          <p class="card-text"></p>
+                          <a href="{{url_for('Book',book_id = info.id)}}" class="btn btn-primary  stretched-link">Go to book</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}
+            {% endif %}
+
+            {% if search_in == "Books" %}
+            {% for info in data %}
+        
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="..." style="height: 15rem;">
+                        <div class="card-body">
+                          <h5 class="card-title">{{info.title}}</h5>
+                          <p class="card-text"></p>
+                          <a href="{{url_for('Book',book_id = info.id)}}" class="btn btn-primary  stretched-link">Go to book</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}
+            {% endif %}
+            
+            
+            {% if search_in == "Sections" %}
+            {% for info in data %}
+        
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="..." style="height: 15rem;">
+                        <div class="card-body">
+                          <h5 class="card-title">{{info.name}}</h5>
+                          <p class="card-text"></p>
+                          <a href="{{url_for('Section',section_id = info.id)}}" class="btn btn-primary  stretched-link">Go to book</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}
+            {% endif %}
+
+{% endblock %}

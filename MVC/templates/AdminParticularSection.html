@@ -1,12 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particular Section</title>
-</head>
-<body>
-    <h1> Displayin a particular Section and books like book html</h1>
-    <h2>Link to book in Section</h2>
-</body>
-</html>
+{% extends  'base.html' %}
+{%block title%} 
+Profiles
+{% endblock%}
+{% block content%}
+
+    <div class="mx-auto p-2" style="width: 200px;">
+        <h1 style="color: white;" class="display-1 ">{{section.name}}</h1>
+    </div>
+    
+    <div class="mx-auto p-2" style="width: 200px;">
+    <a type = "button" href="{{url_for('DeleteSection',section_id = section.id)}}" class="btn btn-danger">Delete Section</a>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            {% for book in books %}
+        
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <div class="card-body">
+                          <h5 class="card-title">{{book.title}}</h5>
+                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                          <a href="{{url_for('Book',book_id = book.id)}}" class="btn btn-secondary  stretched-link">Visit profile</a>
+                        </div>
+                    </div>
+                </div>
+    
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+{% endblock %}

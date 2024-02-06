@@ -48,10 +48,12 @@ users_books = db.Table(
     "users_books",
     db.Column("user_id", db.ForeignKey("users.id"),primary_key=True),
     db.Column("book_id", db.ForeignKey("books.id"),primary_key=True),
+    db.Column("doi",db.String(), default  = date.today().strftime("%d/%m/%Y"))
 )
 
 class  Users(db.Model, UserMixin):
     __tablename__ = "users"
+    profile_pic = db.Column(db.LargeBinary() ) 
     username = db.Column(db.String(length = 30),nullable = False , unique = True)
     id = db.Column(db.Integer(), primary_key = True)
     name =  db.Column(db.String(length = 60) , nullable = False )
@@ -60,28 +62,44 @@ class  Users(db.Model, UserMixin):
     role = db.Column(db.String(10) , default = "User")
     feedback = db.relationship("Feedbacks")
     restrictions = db.relationship("Restrictions")
+   
+     
+    logins = db.Column(db.Integer(),default = 0)
+    no_books_requested = db.Column(db.Integer(),default = 0)
 
+    
     def __repr__(self) -> str:
-        return f"Name: {self.name}; Books:{self.books} ; Role:{self.role}"
+        return f"""Name: {self.name};
+                Username: {self.username};
+                Books:{self.books} ;
+                Role:{self.role}"""
     
   
 
 
 class Books(db.Model):
     __tablename__ = "books"
+    book_pic = db.Column(db.LargeBinary() ) 
     id = db.Column(db.Integer(), primary_key = True)
     title =  db.Column(db.String(length = 60) , nullable = False )
     author =  db.Column(db.String(length = 60) , nullable = False )
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
-    visits =  db.Column(db.Integer()  )
-    feedback = db.relationship("Feedbacks")
-    restrictions = db.relationship("Restrictions")
-    requests = db.relationship("Requests")
+    feedback = db.relationship("Feedbacks",cascade="all, delete")
+    restrictions = db.relationship("Restrictions",cascade="all, delete" )
+    requests = db.relationship("Requests",cascade="all, delete")
     rating = db.Column(db.Integer() , default = 5)
+    current_readers = db.relationship("Users",secondary = users_books )
+    
+   
+    
+    visits = db.Column(db.Integer(),default = 0)
+    requests = db.Column(db.Integer(),default = 0)
 
 
+    
+    
     def __repr__(self) -> str:
         return f"Name: {self.title}; Author:{self.author} ; Content:{self.content}"
 
@@ -90,11 +108,17 @@ class Sections(db.Model):
     __tablename__ = "sections"
     id = db.Column(db.Integer(), primary_key = True)
     name =  db.Column(db.String(length = 60) , nullable = False )
-    date_created =  db.Column(db.String(length = 60) , nullable = False )
+    date_created =  db.Column(db.String(length = 60) , nullable = False ,default = date.today().strftime("%d/%m/%Y") )
     description =  db.Column(db.String(length = 60) , nullable = False )
-    content =  db.Column(db.String(length = 60) , nullable = False )
-    visits =  db.Column(db.String(length = 60) , nullable = False )
     name =  db.Column(db.String(length = 60) , nullable = False )
+    
+
+    
+    visits = db.Column(db.Integer(),default = 0)
+    requests = db.Column(db.Integer(),default = 0)
+   
+
+
 
 class Feedbacks(db.Model):
     __tablename__ = "feedbacks"
@@ -107,18 +131,45 @@ class Feedbacks(db.Model):
 class Requests(db.Model):
     __tablename__ = "requests"
     id = db.Column(db.Integer(), primary_key = True)
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
-    date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime("%d/%m/%Y")  )
-    status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
+    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'),nullable = False,unique = True)
 
+    date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime(f"%d/%m/%Y")  )
+    status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
+    user_id = db.Column(db.Integer(),nullable = False)
+ 
     def __repr__(self) -> str:
         return f"Book: {Books.query.get(self.book_id)}; date:{self.date} ; Status:{self.status}"
 
 class Restrictions(db.Model):
     __tablename__ = "restrictions"
     id = db.Column(db.Integer(), primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'))
+
+"""
+class BookAnalytics(db.Model):
+    __tablename__ = "book_analytics"
+    book_id = db.Column(db.Integer(),db.ForeignKey('books.id'),primary_key = True)
+    visits = db.Column(db.Integer(),default = 0)
+    requests = db.Column(db.Integer(),default = 0)
+    longest_user = db.Column(db.Integer(),db.ForeignKey('users.id'))
+
+class SectionAnalytics(db.Model):
+    __tablename__ = "section_analytics"
+    section_id = db.Column(db.Integer(),db.ForeignKey('sections.id'),primary_key = True)
+    visits = db.Column(db.Integer(),default = 0)
+    requests = db.Column(db.Integer(),default = 0)
+    most_frequent_user = db.Column(db.Integer(),db.ForeignKey('users.id'))
+    most_popular_book = db.Column(db.Integer(),db.ForeignKey('books.id'))
+
+class UserAnalytics(db.Model):
+    __tablename__ = "user_analytics"
+    user_id = db.Column(db.Integer(),db.ForeignKey('users.id'),primary_key = True)
+    favourite_book = db.Column(db.Integer(),db.ForeignKey('books.id'))
+    logins = db.Column(db.Integer(),default = 0)
+    no_books_requested = db.Column(db.Integer(),default = 0)
+    favourite_section = db.Column(db.Integer(),db.ForeignKey('sections.id'))
+"""
 
 
 
