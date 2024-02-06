@@ -1,12 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-</head>
-<body>
-    <h1>Displaying User Info </h1>
-    <h2> Also display Readers books and few Analytics</h2>
-</body>
-</html>
+
+{% extends  'base.html' %}
+{%block title %} 
+ {{current_user.name}}'s Profile
+{% endblock %}
+{% block content %}
+
+
+
+
+    <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
+        <div class="mx-auto " style="width: 25rem;height: 15rem;">
+            <img src="data:;base64,{{ Profile_image }}" class="card-img-top" alt="Profile image" style="width: 20rem;height: 20rem;">
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{current_user.username}}</h5>
+          <span class="btn btn-primary">{{current_user.role}}</span>
+          <p class="card-text"> Bio</p>
+          <br><br>
+
+                         <!-- Button trigger modal -->
+                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            Update Profile
+                        </button>
+                        
+                        <!-- Modal -->
+                        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="staticBackdropLabel">Update User</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    
+                                    <div class="container">
+                                        <form method="POST" class="form-register" style="color:black" enctype="multipart/form-data">
+                                                {{ form.hidden_tag() }}
+                                                
+                                                {{ form.name.label() }}
+                                                {{ form.name(class="form-control", placeholder=current_user.name)}}
+                                        
+                                                {{ form.username.label() }}
+                                                {{ form.username(class="form-control", placeholder=current_user.username) }}
+
+                                                <br> <br>
+                                                {{ form.profile_pic.label() }}
+                                                {{ form.profile_pic(class = "form-control") }}
+                                        
+                                                <br>
+                                                <br><br>
+                                                {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+
+        
+
+                                        </form>
+                                    </div>   
+
+                                </div>
+                                <!--
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Understood</button>
+                                </div> -->
+                            </div>
+                            </div>
+                        </div>
+
+
+
+                            
+                        
+                        <span ></span>
+                        
+
+
+                                                <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Delete Account
+                        </button>
+                        
+                        <!-- Modal -->
+                        
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title " id="exampleModalLabel">Are you sure?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" >
+                                   <strong >Deleting your account will result in losing your access to your Library</strong>
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type = "button" href="#" class="btn btn-danger">Delete User</a>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        
+        
+        
+        
+        
+        </div>
+      
+    </div>
+      
+</div>
+
+<h3 style="color: white;" class="display-3 ">{{current_user.name}}'s Library</h3>
+
+<br>
+<div class="container">
+    <div class="row">
+            {% for book in books %}
+               
+
+                <div class="col-sm mt-3 mb-3">
+                    <div class="card" style="width: 18rem;">
+                        <img src="data:;base64,{{ book[1] }}" class="card-img-top" alt="book_image">
+                        <div class="card-body">
+                        <h5 class="card-title">{{book[0].title}}</h5>
+                        <p class="card-text"> {{book[0].description}}</p>
+                        <a href="{{url_for('Book',book_id = book[0].id)}}" class="btn btn-primary  ">View book</a>
+                        
+                        
+
+                        
+                        
+                        
+                        <a href="{{url_for('ReturnBook',book_id = book[0].id)}}" class="btn btn-secondary  ">Return Book</a>
+                        
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+    </div>
+</div> 
+
+
+
+
+<div></div>
+<br><br><br>
+
+
+
+{% endblock content %}
