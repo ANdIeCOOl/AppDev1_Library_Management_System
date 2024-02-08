@@ -1,6 +1,7 @@
 
 from flask import Flask
 #Flask is an microwebframework used to building web applications fast
+
 from flask_migrate import Migrate
 
 

@@ -1,18 +1,30 @@
 from MVC import app
+from flask_restful import Resource,Api,reqparse
+api = Api(app)
+
 from MVC import Controller_Forms
+
 from MVC.Model import Users,users_books
+
 from MVC.Model import Sections as SectionTable
+
 from MVC.Model import Requests as RequestsTable
+
 from MVC.Model import Books as BooksTable
+
 from MVC.Model import Feedbacks 
+
 from MVC import db
+
 from io import BytesIO
-import fitz
-from PIL import Image
+
 
 from flask import render_template, url_for,redirect,flash,request
+
 from flask_login import login_user, logout_user, login_required, current_user, login_manager
+
 from werkzeug.security import generate_password_hash, check_password_hash 
+
 from base64 import b64encode,b64decode
 
 
@@ -44,11 +56,7 @@ def login():
 
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
-        #with db.engine.connect() as conn:
-         #   user = conn.execute(f"SELECT * FROM users WHERE username = {form.username.data}")
-       # user = db.engine.execute(f"SELECT * FROM users WHERE username = {form.username.data}")
         user = Users.query.filter_by(username = form.username.data).first()
-        #DB CONFIG
         if user:              
             if check_password_hash(user.password_hash,form.password.data):
                 login_user(user)
@@ -61,7 +69,8 @@ def login():
                 return redirect(url_for("Home"))
             else:
                 flash("Please check entered Password and try again" , category="danger")
-                #need to render something here right <><><>><><"""
+                #automatically goes to login page with form half filled?
+                #CHECK THIS
         else:
             flash("User does not exist",category="warning")
             return redirect(url_for("login"))
@@ -96,7 +105,7 @@ def register():
     print(form.validate_on_submit())
 
 
-    if form.validate_on_submit() or request.method == "POST":
+    if form.validate_on_submit():
     # ):
     #if request.method == "POST":
         user = Users.query.filter_by(username = form.username.data).first()
@@ -121,7 +130,14 @@ def register():
             else:
                 flash("Passwords did not match" , category="warning")
                 return redirect(url_for("register"))
-   
+    
+    elif request.method == "POST":
+        for fieldName, errorMessages in form.errors.items():
+            for error in errorMessages:
+                flash(error,category="danger")
+        return redirect(url_for("register"))
+
+    
     return render_template("register.html",form = form)
 
 
@@ -173,7 +189,7 @@ def Search():
     else:
         
         return render_template ("Search.html",search = "Something went wrong \n not supposed to come here",
-                                form1 = form1)
+                                form1 = form1) #Will remove Get
 
 
 
@@ -202,6 +218,7 @@ def AdminProcessRequest():
 #--------------
 #USER REQUESTING BOOK
 #-------
+#CHECK IF YOU NEED POST Metho
 @app.route("/Requesting <int:book_id>" , methods = ["GET","POST"])
 @login_required
 def UserRequestSubmit(book_id):
@@ -234,7 +251,7 @@ def UserRequestSubmit(book_id):
 LVL 2
 """
 #Pending Requests
-
+#DOESNT COME HERE AT ALL 
 @app.route("/Requests/Pending")
 @login_required
 def PendingRequests():
@@ -284,7 +301,8 @@ def RejectRequest(request_id):
     if (current_user.role == "Administrator"):
         request = RequestsTable.query.filter_by(id = request_id).first()
         db.session.delete(request)
-        flash("Request Rejected",category="success")
+        flash("Request Rejected.",category="warning")
+        flash("Congratulations, you have successfully witheld knowledge.",category="success")
         db.session.commit()
         return redirect(url_for("Requests"))
 
@@ -294,7 +312,7 @@ def RejectRequest(request_id):
 
 
 #Request history for analytics maybe in the future  
-    
+  #DOESNT CCOME HERE   
 @app.route("/Requests/History")
 @login_required
 def RequestsHistory():
@@ -308,15 +326,17 @@ def RequestsHistory():
     
 #Revoke access for one or multiple e-book(s) from a user (not for a user so just remove)
 #---------
+    # SEE IF POST IS REQUIRED
 @login_required
 @app.route("/Revoke/<int:book_id><int:user_id>",methods = ["GET","POST"])
 def RevokeBook(book_id,user_id):
-    if request.method == "GET":
+    if request.method == "GET" and current_user.role == "Administrator":
         db.session.execute(users_books.delete().where(users_books.columns.user_id == user_id).where(users_books.columns.book_id==book_id))
         db.session.commit()
         flash("Access Denied, You have successfully witheld knowledge",category="success")        
         return redirect(url_for("ModifyUser",user_id = user_id))
-    
+    else:
+        return redirect(url_for("Home"))
 
 
 
@@ -353,10 +373,11 @@ def UsersAnalytics():
             names = []
             visits = []
             requests = []
-            for section in users:
-                names.append(section.name)
-                visits.append(section.logins)
-                requests.append(section.no_books_requested)        
+
+            for user in users:
+                names.append(user.name)
+                visits.append(user.logins)
+                requests.append(user.no_books_requested)        
 
 
 
@@ -367,31 +388,24 @@ def UsersAnalytics():
             }
                         
             plt.style.use('dark_background')
-            """fig, ax = plt.subplots()
-                ax.plot([1,2])
-                user_axis = [current_user.name , "Other Users Average"]
-                login_axis = [current_user.logins , sum/n ]
-                bar_container = ax.bar(user_axis, login_axis)
-                ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
-                ax.bar_label(bar_container, fmt='{:,.0f}')"""
 
             x = np.arange(len(All_info))  # the label locations
             width = 0.25  # the width of the bars
             multiplier = 0
             fig, ax = plt.subplots(layout='constrained')
 
-            for attribute, measurement in Some_data.items():
+            for logins, request in Some_data.items():
                 offset = width * multiplier
-                rects = ax.bar(x + offset, measurement, width, label=attribute)
+                rects = ax.bar(x + offset, request, width, label=logins)
                 ax.bar_label(rects, padding=3)
                 multiplier += 1
 
             # Add some text for labels, title and custom x-axis tick labels, etc.
             ax.set_ylabel('Count')
-            ax.set_title('Sectionwise Visits and Requests')
+            ax.set_title('User\'s Visits and Requests')
             ax.set_xticks(x + width, All_info)
-            ax.legend(loc='upper left', ncols=3)
-            ax.set_ylim(0,max(max(visits),max(requests)) + 30)
+            ax.legend(loc='upper left', ncols=1)
+            ax.set_ylim(0,max(max(visits),max(requests)) + 10)
 
             buf = BytesIO()
 
@@ -415,7 +429,7 @@ def UsersAnalytics():
             feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
             for feedback in feedbacks:
                 sum[2] += feedback.rating
-        n = db.session.query(Users).count() - 1 
+        n = db.session.query(Users).count() - 1 #Admin not counted
         f = db.session.query(Feedbacks).count()
         if f == 0:
             f = 1
@@ -437,14 +451,6 @@ def UsersAnalytics():
             
             
             plt.style.use('dark_background')
-            """fig, ax = plt.subplots()
-
-            ax.plot([1,2])
-            user_axis = [current_user.name , "Other Users Average"]
-            login_axis = [current_user.logins , sum/n ]
-            bar_container = ax.bar(user_axis, login_axis)
-            ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
-            ax.bar_label(bar_container, fmt='{:,.0f}')"""
 
             x = np.arange(len(All_info))  # the label locations
             width = 0.25  # the width of the bars
@@ -452,9 +458,9 @@ def UsersAnalytics():
 
             fig, ax = plt.subplots(layout='constrained')
 
-            for attribute, measurement in Some_data.items():
+            for YOU, AVG_USER in Some_data.items():
                 offset = width * multiplier
-                rects = ax.bar(x + offset, measurement, width, label=attribute)
+                rects = ax.bar(x + offset, AVG_USER, width, label=YOU)
                 ax.bar_label(rects, padding=3)
                 multiplier += 1
 
@@ -649,8 +655,10 @@ def ModifyUser(user_id):
                 user.username = form.username.data
             if form.profile_pic.data:
                 user.profile_pic = form.profile_pic.data.read()
+            
             user.verified = True
-            db.session.commit()    
+            db.session.commit()
+                
             flash("Update Successfull" , category="success")
             return redirect(url_for("ModifyUser",user_id = user_id))
 
@@ -1140,7 +1148,44 @@ def DeleteBook(book_id):
 
 
 
+class SectionsAPI:
+    def get():
+        pass
+    def put():
+        pass
+    pass
+class BooksAPI:
+    def get():
+        pass
+    def put():
+        pass
+    pass
+class UsersAPI:
+    def get():
+        pass
+    def put():
+        pass
+    pass
+class FeedbacksAPI:
+    def get():
+        pass
+    def put():
+        pass
+    pass
+class AnalyticsAPI:
+    def get():
+        pass
+    def put():
+        pass
+    pass
 
+api.add_resource(SectionsAPI, '/api/Sections')
+api.add_resource(BooksAPI, '/api/Books')
+api.add_resource(UsersAPI, '/api/Users')
+api.add_resource(FeedbacksAPI, '/api/Feedbacks')
+api.add_resource(AnalyticsAPI, '/api/Analytics')
+
+"""
 
 import json
 @app.route("/api/Books")
@@ -1151,13 +1196,13 @@ def Api_Books():
         mydict[book.title] = {"Rating":book.rating,"Requests":book.requests,"Visits":book.visits,"Title":book.title,"Author":book.author,"Description":book.description}
 
     stud_json = json.dumps(mydict, indent=6, sort_keys=True)
-    return (f"""<h1>Books API</h1>
+    return (f\"""<h1>Books API</h1>
                                <div ="BooksAPI"> Books:{stud_json} </div>
                                <br><br>
 
                                <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
                                 
-                                """)
+                                \""")
 
 
 @app.route("/api/Sections")
@@ -1168,13 +1213,13 @@ def Api_Sections():
         mydict[section.name] = {"Name":section.name,"Visits":section.visits,"Requests":section.requests,"Description":section.description}
 
     stud_json = json.dumps(mydict, indent=6, sort_keys=True)
-    return (f"""<h1>Sections API</h1>
+    return (f\"""<h1>Sections API</h1>
                                <div id ="SectionsAPI">Sections:{stud_json}</div>
                                <br><br>
 
                                <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
                                 
-                                """)
+                                \""")
 
 
 @app.route("/api/Analytics")
@@ -1204,15 +1249,15 @@ def Api_Analytics():
         for feedback in feedbacks:
             mydict[feedback.book_id] = {"FeedBack":feedback.feedback,"Rating":feedback.rating}
         stud_json1 = json.dumps(mydict, indent=6, sort_keys=True)
-        return (f"""<h1>Analytics API</h1>
+        return (f\"""<h1>Analytics API</h1>
                                <div id ="LoginsVSRequestsAPI">LoginsVSRequests:{stud_json}</div>
                                <br> <br> <br>
                                <div id ="BookFeedbacksAPI">Feedbacks:{stud_json1}</div>
                                <br><br>
 
                                <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
-                                """)
-
+                                \""")
+"""
  #######################################################################
 
 # ALL USER CODE
