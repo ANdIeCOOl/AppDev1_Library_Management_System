@@ -1147,43 +1147,155 @@ def DeleteBook(book_id):
                                         #            testing purposes
 
 
+#----------------
+#API-------
+#----------
+import json
+from flask import jsonify
+#C CREATE
+#R READ
+#U UPDATE
+#D DELETE
+#--------------
+class SectionsAPI(Resource): # C R
+    def get(self):
+        mydict = {}
+        sections = db.session.execute(db.select(SectionTable)).scalars()
+        for section in sections:
+            mydict[section.name] = {"Name":section.name,"Visits":section.visits,"Requests":section.requests,"Description":section.description}
 
-class SectionsAPI:
-    def get():
+        stud_json = jsonify(mydict)
+        return stud_json
+    
+    
+    def post(self):
         pass
-    def put():
+    
+
+class SectionAPI(Resource): # R U D
+    def get(self,section_id):
+        section = SectionTable.query.filter_by(id = section_id).first()
+        books= BooksTable.query.filter_by(section_id = section_id).all()
+        Dict= {"Section Name":section.name,
+                "Section Descriptions":section.description,
+                "Section Visits":section.visits,
+                "Section Requests":section.requests,
+                }
+        for book in books:
+            Dict[book.title] = {"Rating":book.rating,
+                                "Requests":book.requests,
+                                "Visits":book.visits,
+                                "Title":book.title,
+                                "Author":book.author,
+                                "Description":book.description}
+
+
+   
+        return jsonify(Dict)
+    
+    def delete(self,section_id):
+        pass
+    def put(self,section_id):
+        pass
+    
+
+
+
+
+class BooksAPI(Resource): # C R
+    def get(self):
+        mydict = {}
+        books = db.session.execute(db.select(BooksTable)).scalars()
+        for book in books:
+            mydict[book.title] = {"Rating":book.rating,"Requests":book.requests,"Visits":book.visits,"Title":book.title,"Author":book.author,"Description":book.description}
+
+        stud_json = jsonify(mydict)
+        return stud_json
+    
+    def post(self):
+        pass
+
+
+class BookAPI(Resource): # R U D
+    def get(self,book_id):
+        book = BooksTable.query.filter_by(id = book_id).first()
+        Dict= {"Rating":book.rating,
+                              "Requests":book.requests,
+                              "Visits":book.visits,
+                              "Title":book.title,
+                              "Author":book.author,
+                              "Description":book.description}
+       
+        return jsonify(Dict)
+    
+
+    def delete(self,book_id):
+        pass
+    def put(self,book_id):
+        pass
+
+
+
+
+
+"""class UsersAPI(Resource):
+    def get(self):
+        pass
+    def put(self):
         pass
     pass
-class BooksAPI:
-    def get():
+class FeedbacksAPI(Resource):
+    def get(self):
         pass
-    def put():
+    def put(self):
         pass
-    pass
-class UsersAPI:
-    def get():
-        pass
-    def put():
-        pass
-    pass
-class FeedbacksAPI:
-    def get():
-        pass
-    def put():
-        pass
-    pass
-class AnalyticsAPI:
-    def get():
-        pass
-    def put():
-        pass
-    pass
+    pass"""
+
+
+class AnalyticsAPI(Resource):
+    def get(self):
+        users = db.session.execute(db.select(Users)).scalars()
+        if users:
+            names = []
+            visits = []
+            requests = []
+            for section in users:
+                names.append(section.name)
+                visits.append(section.logins)
+                requests.append(section.no_books_requested)        
+
+
+
+            All_info = [name for name in names]
+            Some_data = {
+                "Logins":visits,
+                "Requests":requests 
+                }
+
+            stud_json = jsonify(Some_data)
+            mydict = {}
+            feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
+            for feedback in feedbacks:
+                mydict[feedback.book_id] = {"FeedBack":feedback.feedback,"Rating":feedback.rating}
+            stud_json1 = jsonify(mydict)
+
+            newD = {"Feedbacks":mydict,
+                    "LoginsVsRequests":Some_data
+            }
+
+            aa = jsonify(newD)
+            return aa
+        
+
 
 api.add_resource(SectionsAPI, '/api/Sections')
 api.add_resource(BooksAPI, '/api/Books')
-api.add_resource(UsersAPI, '/api/Users')
-api.add_resource(FeedbacksAPI, '/api/Feedbacks')
+#api.add_resource(UsersAPI, '/api/Users')
+#api.add_resource(FeedbacksAPI, '/api/Feedbacks')
 api.add_resource(AnalyticsAPI, '/api/Analytics')
+api.add_resource(BookAPI, '/api/Book<book_id>')
+api.add_resource(SectionAPI, '/api/Section<section_id>')
+
 
 """
 
