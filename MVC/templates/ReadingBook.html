@@ -1,2 +1,12 @@
 
-<embed src="{{url_for('ReadinBrowser',book_id=book_id)}}" style="width:100%; height:600px;">
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="{{url_for('ReadFree',book_id=book_id)}}" class="btn btn-success  stretched-link">DOWNLOAD NOW</a>
+<p style = "color: white;"> Disclaimer: by clicking Download, you don't have to pay , it's free CLICK ANYWHERE</p>
+<br>
+<br>
+<br>
+<embed src="{{url_for('ReadinBrowser',book_id=book_id)}} #toolbar=0&navpanes=0" style="width:100%; height:600px;" > 
+
+{% endblock %}

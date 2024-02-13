@@ -1,0 +1,12 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+<p class="btn btn-success">CLICK The DowNLOAd ICon</p>
+
+<br>
+<br>
+<br>
+<embed src="{{url_for('ReadinBrowser',book_id=book_id)}}" style="width:100%; height:600px;" > 
+
+{% endblock %}

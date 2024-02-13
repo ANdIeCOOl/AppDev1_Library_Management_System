@@ -1072,6 +1072,19 @@ def ReadinBrowser(book_id):
         response.headers['Content-Disposition'] = \
             'inline; filename=%s.pdf' % 'yourfilename'
         return response
+@app.route('/ReadPDF4Free/<book_id>')  
+def ReadFree(book_id):
+    book = BooksTable.query.filter_by(id = book_id).first()
+                
+    pdf_blob = book.content
+
+
+    if pdf_blob[0:4] != b'%PDF':
+        flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian')
+        return redirect(url_for("ModifyUser",user_id = current_user.id))
+                
+    return render_template("Readfree.html",book_id = book_id)
+
     
 from datetime import date
 from flask import make_response
@@ -1152,11 +1165,15 @@ def DeleteBook(book_id):
 #----------
 import json
 from flask import jsonify
-#C CREATE
-#R READ
-#U UPDATE
-#D DELETE
+#C CREATE X
+
+#           /
+#R READ   \/
+
+#U UPDATE X
+#D DELETE X
 #--------------
+
 class SectionsAPI(Resource): # C R
     def get(self):
         mydict = {}
