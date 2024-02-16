@@ -901,11 +901,10 @@ def Section(section_id):
         section.verified = True
         db.session.commit()
         books = BooksTable.query.filter_by(section_id = section_id).all()
-        if books:
+
             
-            return render_template("AdminParticularSection.html",books = books,section = section,form = form)
-        else:
-            return render_template("nothing.html")
+        return render_template("AdminParticularSection.html",books = books,section = section,form = form)
+    
 
      
     elif request.method == "POST":
@@ -918,15 +917,14 @@ def Section(section_id):
             books = BooksTable.query.filter_by(section_id = section_id).all()
         except:
             pass
-        if books:
 
-            if (current_user.role == "Administrator"):
-                return render_template("AdminParticularSection.html",books = books,section = section,form = form)
-            else:
-                
-                return render_template("UserParticularSection.html",books = books,section = section)
+
+        if (current_user.role == "Administrator"):
+            return render_template("AdminParticularSection.html",books = books,section = section,form = form)
         else:
-            return render_template("nothing.html")
+                
+            return render_template("UserParticularSection.html",books = books,section = section)
+
 
 
 @app.route("/Sections/DELETE <int:section_id>" , methods = ['GET' , 'POST'])
