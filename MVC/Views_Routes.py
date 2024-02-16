@@ -206,8 +206,15 @@ LVL 1
 @login_required
 def Requests():
     if (current_user.role == "Administrator"):
+        req = []
         requests = db.session.execute(db.select(RequestsTable)).scalars()
-        return render_template("AdminRequests.html" , requests = requests)
+        for request in requests:
+            req.append( ( request,
+                        Users.query.filter_by(id = request.user_id).first().username,
+                        BooksTable.query.filter_by(id = request.book_id).first().title ) )
+
+
+        return render_template("AdminRequests.html" , requests = req)
     else:
         return render_template("UserRequests.html")
     
@@ -880,20 +887,46 @@ Lvl 2
 @app.route("/Sections/<int:section_id>" , methods = ['GET' , 'POST'])
 @login_required
 def Section(section_id):
+    form = Controller_Forms.EditSectionForm()
     section = SectionTable.query.filter_by(id = section_id).first()
     section.visits += 1
     section.verified = True
     db.session.commit() 
-    try:
+    if form.validate_on_submit():
+        if form.name.data:
+            section.name = form.name.data
+        if form.description.data:
+            section.description = form.description.data
+
+        section.verified = True
+        db.session.commit()
         books = BooksTable.query.filter_by(section_id = section_id).all()
-    except:
-        pass
-    if (current_user.role == "Administrator"):
-        return render_template("AdminParticularSection.html",books = books,section = section)
+        if books:
+            
+            return render_template("AdminParticularSection.html",books = books,section = section,form = form)
+        else:
+            return render_template("nothing.html")
+
+     
+    elif request.method == "POST":
+        for fieldName, errorMessages in form.errors.items():
+            for error in errorMessages:
+                flash(error,category="danger")
+        return redirect(url_for("Sections",section_id = section_id)) 
     else:
-        
-        return render_template("UserParticularSection.html",books = books,section = section)
-    
+        try:
+            books = BooksTable.query.filter_by(section_id = section_id).all()
+        except:
+            pass
+        if books:
+
+            if (current_user.role == "Administrator"):
+                return render_template("AdminParticularSection.html",books = books,section = section,form = form)
+            else:
+                
+                return render_template("UserParticularSection.html",books = books,section = section)
+        else:
+            return render_template("nothing.html")
 
 
 @app.route("/Sections/DELETE <int:section_id>" , methods = ['GET' , 'POST'])
@@ -987,7 +1020,8 @@ def Book(book_id):
                 book.book_pic = form.book_pic.data.read()
 
             book.verified = True
-            db.session.commit()    
+            db.session.commit()  
+
             flash("Update Successfull" , category="success")
             return redirect(url_for("Book",book_id = book_id))
 
@@ -1007,22 +1041,22 @@ def Book(book_id):
             except:
                 pass
             readers = book.current_readers
-            print("Test 1 ------ \n --------\n")
+          
             section = SectionTable.query.filter_by(id = book.section_id).first()
-            print("Test  2------ \n --------\n")
+         
             if section:
                 section = section.name
-                print("Test  3 ------ \n --------\n")
+              
             bookFeedback = Feedbacks.query.filter_by(book_id = book_id)
             feedbacks = []
-            print("Test  4 ------ \n --------\n")
+        
             for feedback in bookFeedback:
                 feedbacks.append(( Users.query.filter_by( id = feedback.user_id).first(),
                                 BooksTable.query.filter_by( id = feedback.book_id).first() ,
                                 feedback.feedback,
                                 feedback.rating
                                 ))
-            print("Test  5 ------ \n --------\n")
+
             return render_template("AdminBookInfo.html",book= book,feedbacks = feedbacks , form = form,section = section,book_pic = book_pic)
     else:
         
@@ -1133,6 +1167,10 @@ def ReadBook(book_id):
 #--------------------------------------------------------------------------------------
 #Book DELETETION
 #-------------------------------------------------------------------------------
+from sqlalchemy import delete
+
+#statement = delete(User).where(User.id.in_(...))
+#session.execute(statement)
 @login_required
 @app.route("/Books/Delete/<book_id>",methods = ["GET","POST"])
 def DeleteBook(book_id):
@@ -1141,8 +1179,8 @@ def DeleteBook(book_id):
             book = BooksTable.query.filter_by(id = book_id).first()
             if book:
                 db.session.execute(users_books.delete().where(users_books.columns.book_id==book_id))
-                feedbacks = Feedbacks.query.filter_by(book_id = book_id)
-                db.session.delete(feedbacks)
+                statement = delete(Feedbacks).where(Feedbacks.book_id.in_([book_id]))
+                db.session.execute(statement)
                 db.session.delete(book)
                 db.session.commit()
                 flash(f"Book has been deleted" , 

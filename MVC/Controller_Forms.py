@@ -12,7 +12,7 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
 	name = StringField("Name", validators=[DataRequired()])
 	username = StringField("Username", validators=[DataRequired()])
-	password = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match!')])
+	password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm_password', message='Passwords Must Match!')])
 	confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
 	submit = SubmitField("Register")  
 	
@@ -51,6 +51,11 @@ class EditUserForm(FlaskForm):
 class UploadSectionForm(FlaskForm):
     name =  StringField("Section Name", validators=[DataRequired()])
     description =  StringField("Description", validators=[DataRequired()])
+    submit = SubmitField("Add Section")  
+
+class EditSectionForm(FlaskForm):
+    name =  StringField("Section Name")
+    description =  StringField("Description")
     submit = SubmitField("Add Section")  
 
 class UploadFeedBackForm(FlaskForm):

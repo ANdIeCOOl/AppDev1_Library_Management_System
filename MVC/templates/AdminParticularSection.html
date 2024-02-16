@@ -9,6 +9,52 @@ Profiles
     </div>
     
     <div class="mx-auto p-2" style="width: 200px;">
+                  <!-- Button trigger modal -->
+                  <button type="button" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    Edit {{section.name}}'s details
+                </button>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Add Section</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            
+                            <div class="container">
+                                <form method = "POST" enctype="multipart/form-data">
+                                    {{form.hidden_tag()}}
+                                    
+                                    {{ form.name.label() }}
+                                    {{ form.name(data=form.name.data,class="form-control", placeholder="Enter Name")}}
+                            
+                                    {{ form.description.label() }}
+                                    {{ form.description(data=form.description.data,class="form-control", placeholder="Enter description") }}
+                    
+                                    <br>
+                                    {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
+                                </form>
+
+
+
+                               <!--
+                                ENTER FOR
+                               -->
+                            
+                            </div>   
+
+                        </div>
+                        <!--
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Understood</button>
+                        </div> -->
+                    </div>
+                    </div>
+                </div>
     <a type = "button" href="{{url_for('DeleteSection',section_id = section.id)}}" class="btn btn-danger">Delete Section</a>
     </div>
 

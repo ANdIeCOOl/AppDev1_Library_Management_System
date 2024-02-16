@@ -13,13 +13,16 @@
     <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
         <div class="mx-auto " style="width: 25rem;height: 15rem;">
             <img src="data:;base64,{{ book_pic }}" class="card-img-top" alt="Book image not available" style="width: 21rem;height: 20rem;">
-            <div class="mx-auto p-2" style="width: 200px;">
-                <a href="{{url_for('UserRequestSubmit',book_id=book.id)}}" class="btn btn-warning stretched-link" >Request {{book.title}}</a>
-                <a href="{{url_for('ReadBook',book_id=book.id)}}" class="btn btn-success stretched-link " >Read {{book.title}}</a>
-            
-            </div>
-            
         </div>
+        <br>
+        <br><br>
+            <div class="mx-auto p-2" style="width: 200px;">
+                <a href="{{url_for('UserRequestSubmit',book_id=book.id)}}" class="btn btn-warning" >Request {{book.title}}</a>
+            </div>
+            <div class="mx-auto p-2" style="width: 200px;">
+             <a href="{{url_for('ReadBook',book_id=book.id)}}" class="btn btn-success" >Read {{book.title}}</a>
+            </div>
+        
         
         <div class="card-body">
           <h5 class="card-title">{{book.title}}</h5>

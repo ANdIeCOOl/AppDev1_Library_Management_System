@@ -2,7 +2,7 @@
 {% block content%}
 <h1 style="color: white;" class="display-1">Requests</h1>
     
-{%if requests != None %}
+
 {% for request in requests %}
         
             <div class="container-fluid" style="color: white;">
@@ -11,18 +11,26 @@
                     
                     <div class="col-md-8">
                         <div class="card-body" style = "color: white;" >
+                        <h3 class="card-title">
+                            <div class="btn  btn-secondary" >
+                          Book: {{request[2]}}
+                        </div>
+                          <br>
+                          <div class="btn  btn-primary">
+                          User: {{request[1]}}
+                        </div>
                         <h5 class="card-title ">
                             <div class="btn btn-sm btn-warning" >
-                            {{request.status}}
+                            {{request[0].status}}
                             </div>
+                            <br>
+                            <br>
                         </h5>
-                        <h3 class="card-title">
-                           {{request.book_id}}
 
                         </h3>
                         <div > 
-                            <a href="{{url_for('AcceptRequest' , request_id = request.id)}}" class="btn btn-success ">Approve</a>
-                            <a href="{{url_for('RejectRequest' , request_id = request.id)}}" class="btn btn-danger ">Reject</a>
+                            <a href="{{url_for('AcceptRequest' , request_id = request[0].id)}}" class="btn btn-success ">Approve</a>
+                            <a href="{{url_for('RejectRequest' , request_id = request[0].id)}}" class="btn btn-danger ">Reject</a>
                         </div>
                     </div>
                     </div>
@@ -32,13 +40,13 @@
             </div>
 
     {% endfor %}
-    {% endif %}
+ 
     
-    {% if requests != None %}
+
     <br>
     <h1 class="display-3" style="color: lightgray;">No Pending Requests</h1>
 
-    {% endif %}
+
 
 
 
