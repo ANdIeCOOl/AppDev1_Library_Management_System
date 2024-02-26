@@ -1,9 +1,12 @@
 from MVC import app
-from flask_restful import Resource,Api,reqparse
+
+
+from flask_restful import Resource,Api
 api = Api(app)
 
 from MVC import Controller_Forms
 
+#-----------------------------------------------------------
 from MVC.Model import Users,users_books
 
 from MVC.Model import Sections as SectionTable
@@ -16,19 +19,44 @@ from MVC.Model import Feedbacks
 
 from MVC import db
 
+#-----------------------------------------------------------
+
 from io import BytesIO
+
+#conver pyplot to png
+#-----------------------------------------------------------
 
 
 from flask import render_template, url_for,redirect,flash,request
 
-from flask_login import login_user, logout_user, login_required, current_user, login_manager
+#Standard Flask methods for webapp
+##-----------------------------------------------------------
+
+from flask_login import login_user, logout_user, login_required, current_user
+
+#for user authentication and basic user functionality
+#-----------------------------------------------------------
 
 from werkzeug.security import generate_password_hash, check_password_hash 
 
+#hashin passwords to store into database and also check during login
+#Standard practise
+##-----------------------------------------------------------
+
 from base64 import b64encode,b64decode
+
+#blob into pictures and pdfs to render in the webapp
+##-----------------------------------------------------------
 
 
 #NAV BAR SEARCH FORM
+"""
+To inject new variables automatically into the context of a template, 
+context processors exist in Flask. Context processors run before the template is 
+rendered and have the ability to inject new values into the template context. 
+A context processor is a function that returns a dictionary.
+https://flask.palletsprojects.com/en/2.3.x/templating/
+"""
 @app.context_processor
 def base():
     form1 = Controller_Forms.SearchForm()
@@ -93,11 +121,8 @@ def logout():
 
 
 
-#REGISTER-------------------IMPORTANT
-# still need to check why form.validate on submit not working
-# thats proabably because some validation criteria is not being met check 
-#  modifyusers function do that xD
-#-------
+#--------------------------------------------------------------
+#REGISTRATION
 
 @app.route("/register" , methods = ['GET','POST'])
 def register():
@@ -191,10 +216,6 @@ def Search():
                                 form1 = form1) #Will remove Get
 
 
-
-
-
-
 #--------------------------------------------------------------------------------------
 #REQUESTS-------------------------------------------------------------------------------
 
@@ -215,12 +236,9 @@ def Requests():
 
         return render_template("AdminRequests.html" , requests = req)
     else:
-        return render_template("UserRequests.html")
+        return render_template("UserRequests.html") #DOESNT COME HERE
     
 
-@login_required
-def AdminProcessRequest():
-    pass
 #--------------
 #USER REQUESTING BOOK
 #-------
