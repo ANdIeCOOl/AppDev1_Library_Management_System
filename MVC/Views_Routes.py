@@ -759,6 +759,7 @@ def ReturnBook(book_id):
                                   feedback = form.feedback.data,
                                   rating = form.rating.data
                                   )
+        db.session.add(feedback)
         book = BooksTable.query.filter_by(id = book_id).first()
         n = Feedbacks.query.filter_by(book_id = book_id).count()
         ratings = Feedbacks.query.filter_by(book_id = book_id).all()
@@ -770,12 +771,13 @@ def ReturnBook(book_id):
         if n == 0:
             book.rating = form.rating.data 
         else:
-            book.rating = (form.rating.data + sum)/n+1
+            book.rating = sum/n
         book.verified = True
         db.session.add(feedback)
         db.session.commit()
         flash("Thank you for the feedback",category="success")
         return redirect(url_for("ModifyUser",user_id = current_user.id))
+    
     else:
         for fieldName, errorMessages in form.errors.items():
             for error in errorMessages:
