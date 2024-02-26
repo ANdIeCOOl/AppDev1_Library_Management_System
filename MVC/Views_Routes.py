@@ -1166,20 +1166,7 @@ def ReadBook(book_id):
         
         
         entry = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id)).first()
-        """
-        for row in entries:
-            print("---------- \n ------------\n ------------ \n")
-            print(date.today())
-            x = row[2].rsplit("/")
-            doi = date(int(x[2]),int(x[1]),int(x[0]))
-            dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
-            print( date.today().strftime("%d/%m/%Y") > "22/02/2024")
-            print( date.today() > doi)
-            print(dor)
-            print(doi)
-            print("---------- \n ------------\n ------------ \n")
-         
-           """
+
         if entry:
             x = entry[2].rsplit("/")
             if(calendar.monthrange(int(x[2]), int(x[1]))[1] > int(x[0]) + 7 ):
@@ -1216,8 +1203,6 @@ def ReadBook(book_id):
 #-------------------------------------------------------------------------------
 from sqlalchemy import delete
 
-#statement = delete(User).where(User.id.in_(...))
-#session.execute(statement)
 @login_required
 @app.route("/Books/Delete/<book_id>",methods = ["GET","POST"])
 def DeleteBook(book_id):
@@ -1245,10 +1230,10 @@ def DeleteBook(book_id):
                                         #            testing purposes
 
 
-#----------------
-#API-------
-#----------
-import json
+#----------------------------------------------------------------
+#API-------------------------------------------------------
+#--------------------------------------------------------------------------
+
 from flask import jsonify
 #C CREATE X
 
@@ -1392,88 +1377,7 @@ class AnalyticsAPI(Resource):
 
 api.add_resource(SectionsAPI, '/api/Sections')
 api.add_resource(BooksAPI, '/api/Books')
-#api.add_resource(UsersAPI, '/api/Users')
-#api.add_resource(FeedbacksAPI, '/api/Feedbacks')
 api.add_resource(AnalyticsAPI, '/api/Analytics')
 api.add_resource(BookAPI, '/api/Book<book_id>')
 api.add_resource(SectionAPI, '/api/Section<section_id>')
 
-
-"""
-
-import json
-@app.route("/api/Books")
-def Api_Books():
-    mydict = {}
-    books = db.session.execute(db.select(BooksTable)).scalars()
-    for book in books:
-        mydict[book.title] = {"Rating":book.rating,"Requests":book.requests,"Visits":book.visits,"Title":book.title,"Author":book.author,"Description":book.description}
-
-    stud_json = json.dumps(mydict, indent=6, sort_keys=True)
-    return (f\"""<h1>Books API</h1>
-                               <div ="BooksAPI"> Books:{stud_json} </div>
-                               <br><br>
-
-                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
-                                
-                                \""")
-
-
-@app.route("/api/Sections")
-def Api_Sections():
-    mydict = {}
-    sections = db.session.execute(db.select(SectionTable)).scalars()
-    for section in sections:
-        mydict[section.name] = {"Name":section.name,"Visits":section.visits,"Requests":section.requests,"Description":section.description}
-
-    stud_json = json.dumps(mydict, indent=6, sort_keys=True)
-    return (f\"""<h1>Sections API</h1>
-                               <div id ="SectionsAPI">Sections:{stud_json}</div>
-                               <br><br>
-
-                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
-                                
-                                \""")
-
-
-@app.route("/api/Analytics")
-def Api_Analytics():
-    pass
-    users = db.session.execute(db.select(Users)).scalars()
-    if users:
-        names = []
-        visits = []
-        requests = []
-        for section in users:
-            names.append(section.name)
-            visits.append(section.logins)
-            requests.append(section.no_books_requested)        
-
-
-
-        All_info = [name for name in names]
-        Some_data = {
-            "Logins":visits,
-            "Requests":requests 
-            }
-
-        stud_json = json.dumps(Some_data, indent=6, sort_keys=True)
-        mydict = {}
-        feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
-        for feedback in feedbacks:
-            mydict[feedback.book_id] = {"FeedBack":feedback.feedback,"Rating":feedback.rating}
-        stud_json1 = json.dumps(mydict, indent=6, sort_keys=True)
-        return (f\"""<h1>Analytics API</h1>
-                               <div id ="LoginsVSRequestsAPI">LoginsVSRequests:{stud_json}</div>
-                               <br> <br> <br>
-                               <div id ="BookFeedbacksAPI">Feedbacks:{stud_json1}</div>
-                               <br><br>
-
-                               <img src = "{url_for('static',filename = 'lelo_data.gif')}" width = 100%>
-                                \""")
-"""
- #######################################################################
-
-# ALL USER CODE
-
-#####################################################################
