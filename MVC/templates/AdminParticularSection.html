@@ -65,7 +65,7 @@ Profiles
 
                 <div class="col-sm mt-3 mb-3">
                     <div class="card" style="width: 18rem;">
-                        <img src="static\animation.gif" class="card-img-top" alt="...">
+                        <img src="{{url_for('static',filename = 'animation.gif')}}" class="card-img-top" alt="...">
                         <div class="card-body">
                           <h5 class="card-title">{{book.title}}</h5>
                           <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -83,7 +83,51 @@ Profiles
             <div class="card-body">
               <h5 class="card-title">Add Book</h5>
               <p class="card-text">
-                <a href="#" class = "btn btn-primary">Add Book to {{section.name}}</a>
+            
+
+                
+                <button type="button" class="btn btn-primary stretched-link" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Add Book to {{section.name}}
+                </button>
+
+                  <!-- Modal -->
+                    
+                  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title " id="exampleModalLabel">Which book do you want to add to {{section.name}}?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    {% for book in all_books %}
+                                
+                        
+                                        <div class="col-sm mt-3 mb-3">
+                                            <div class="card" style="width: 8rem;">
+                                                <img src="{{url_for('static',filename = 'animation.gif')}}" class="card-img-top" alt="..." style="height: 5rem;">
+                                                <div class="card-body">
+                                                  <h5 class="card-title">{{book.title}}</h5>
+                                                  <a href="{{url_for('AddBookToSection',section_id = section.id, book_id = book.id)}}" class="btn btn-primary  stretched-link">Add Book</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                            
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                        
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a type = "button" href="#" class="btn btn-danger">Delete Book</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+              
             
            
 

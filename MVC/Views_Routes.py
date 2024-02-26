@@ -170,8 +170,7 @@ def Search():
         if search_in == "Books":
             data = BooksTable.query.filter((BooksTable.title.like(search))).all()
             return render_template("Search.html",search = form1.search.data , data = data,search_in=search_in)
-            
-        
+
         if search_in == "Authors":
             data = BooksTable.query.filter( (BooksTable.author.like(search))).all()
             return render_template("Search.html",search = form1.search.data , data = data,search_in = search_in)
@@ -900,10 +899,17 @@ def Section(section_id):
 
         section.verified = True
         db.session.commit()
-        books = BooksTable.query.filter_by(section_id = section_id).all()
+        books1 = BooksTable.query.filter_by(section_id = section_id).all()
+        all_books = db.session.execute(db.select(BooksTable)).scalars()
+        print("1-"*10)
+        print("4--",len(all_books))
+        for book in all_books:
+            print(book.title)
+            print("2-"*10)
 
+        print("3-"*10)
             
-        return render_template("AdminParticularSection.html",books = books,section = section,form = form)
+        return render_template("AdminParticularSection.html",books = books1,all_books = all_books,section = section,form = form)
     
 
      
@@ -914,17 +920,31 @@ def Section(section_id):
         return redirect(url_for("Sections",section_id = section_id)) 
     else:
         try:
+            all_books = db.session.execute(db.select(BooksTable)).scalars()
             books = BooksTable.query.filter_by(section_id = section_id).all()
         except:
             pass
 
 
         if (current_user.role == "Administrator"):
-            return render_template("AdminParticularSection.html",books = books,section = section,form = form)
+            return render_template("AdminParticularSection.html",books = books,all_books = all_books,section = section,form = form)
         else:
                 
             return render_template("UserParticularSection.html",books = books,section = section)
 
+#-----------------------------------------------------------------------------
+@app.route("/Sections/AddBook/Section_<int:section_id> Book:<book_id>" , methods = ['GET' , 'POST'])
+@login_required
+def AddBookToSection(section_id, book_id):
+    book = BooksTable.query.filter_by(id = book_id).first()
+    if (book.section_id == section_id):
+        flash("Book is already in this section",category="warning")
+        return redirect(url_for("Section",section_id = section_id))
+    book.section_id = section_id
+    book.verified = True
+    db.session.commit()
+    flash("Book Has successfully been added",category="success")
+    return redirect(url_for("Section",section_id = section_id))
 
 
 @app.route("/Sections/DELETE <int:section_id>" , methods = ['GET' , 'POST'])
