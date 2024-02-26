@@ -18,8 +18,9 @@
         <div class="card-body">
           <h5 class="card-title">{{book.title}}</h5>
           <span class="btn btn-primary">{{section}}</span>
-          <p class="card-text"> {{book.description}}</p>
           <span class="btn btn-primary"> Rating : {{book.rating}}</span>
+          <p class="card-text"> Author: {{book.author}}</p>
+          <p class="card-text">Description: {{book.description}}</p>
 
 
           <br><br>
@@ -33,7 +34,7 @@
                         <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">Update User</h5>
+                            <h5 class="modal-title" id="staticBackdropLabel">Update Book</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -46,22 +47,24 @@
                                     <form method = "POST" enctype="multipart/form-data">
                                         {{form.hidden_tag()}}
                                         
-                                        {{ form.title.label() }}
+                                        <div style="color:black;">{{ form.title.label() }}
                                         {{ form.title(data=form.title.data,class="form-control", placeholder="Enter title")}}
-                                
-                                        {{ form.author.label() }}
-                                        {{ form.author(data=form.author.data,class="form-control", placeholder="Enter Author name") }}
-                                
-                                        {{ form.description.label() }}
-                                        {{ form.description(data=form.description.data,class="form-control", placeholder="Password") }}
-                                
-                                        {{ form.section_id.label() }}
-                                        {{ form.section_id(class="form-control", placeholder="Not necessary") }}
+                                    </div>
 
-                                        {{ form.content.label(data=form.content.data) }}
-                                        {{ form.content() }}
-                                        {{ form.book_pic.label() }}
-                                        {{ form.book_pic() }}
+                                        <div style="color:black;">{{ form.author.label() }}
+                                        {{ form.author(data=form.author.data,class="form-control", placeholder="Enter Author name") }}
+                                    </div>
+
+                                        <div style="color:black;">{{ form.description.label() }}
+                                        {{ form.description(data=form.description.data,class="form-control", placeholder="Password") }}
+                                    </div>
+                                        
+                                        <div style="color:black;"> {{ form.content.label(data=form.content.data) }}
+                                        {{ form.content() }}</div>
+                                            <br>
+                                        
+                                        <div style="color:black;">{{ form.book_pic.label() }}
+                                        {{ form.book_pic() }}</div>
                                 
                                         <br>
                                         {{ form.submit(class="btn btn-lg btn-block btn-primary") }}

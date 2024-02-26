@@ -28,7 +28,6 @@ class UploadBookForm(FlaskForm):
     description =  StringField("Description", validators=[DataRequired()])
     content =   FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png','pdf'], 'Filesonly only!')])
 	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
-    section_id =   StringField("SectionID")
     submit = SubmitField("Upload Book")  
 	
 class EditBookForm(FlaskForm):
@@ -38,8 +37,7 @@ class EditBookForm(FlaskForm):
 	description =  StringField("Description")
 	content =   FileField("Content", validators=[FileAllowed(['pdf'], 'Filesonly only!')])
 	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
-	section_id =   StringField("SectionID")
-	submit = SubmitField("Upload Book")  
+	submit = SubmitField("Update Book")  
 	
 
 class EditUserForm(FlaskForm):

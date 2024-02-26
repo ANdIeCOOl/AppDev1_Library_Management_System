@@ -8,11 +8,16 @@ Profiles
         <h1 style="color: white;" class="display-1 ">{{section.name}}</h1>
     </div>
     
+    <div class="card" style="background: linear-gradient(180deg, black, rgb(90, 90, 90));color: gainsboro;">
     <div class="mx-auto p-2" style="width: 200px;">
+
+
+
                   <!-- Button trigger modal -->
-                  <button type="button" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    Edit {{section.name}}'s details
-                </button>
+                        <button type="button" class="btn btn-primary btn-sm " data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            Edit {{section.name}}'s details
+                        </button>
+                    
                 
                 <!-- Modal -->
                 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -38,12 +43,6 @@ Profiles
                                     {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
                                 </form>
 
-
-
-                               <!--
-                                ENTER FOR
-                               -->
-                            
                             </div>   
 
                         </div>
@@ -55,8 +54,15 @@ Profiles
                     </div>
                     </div>
                 </div>
-    <a type = "button" href="{{url_for('DeleteSection',section_id = section.id)}}" class="btn btn-danger">Delete Section</a>
+    <br><br>
+    <a type = "button" href="{{url_for('DeleteSection',section_id = section.id)}}" class="btn btn-danger btn-sm">Delete Section</a>
+    
+</div>
+
+       <h3 style="color: white;" class="display-6 ">Description: {{section.description}}</h3>
     </div>
+    <br>
+  
 
     <div class="container">
         <div class="row">

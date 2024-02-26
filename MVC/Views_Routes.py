@@ -996,9 +996,7 @@ def Books():
         
         if form.validate_on_submit():
             content1=form.content.data.read()
-            section_id = None
-            if form.section_id.data:
-                section_id = form.section_id.data
+            section_id = None   
             book = BooksTable(title = form.title.data , 
                         author = form.author.data ,
                         description =form.description.data ,
@@ -1038,9 +1036,6 @@ def Book(book_id):
                 book.description = form.description.data
             if form.content.data:
                 book.content = form.content.data.read()
-                #also read pdf and put the first page as book_pic
-            if form.section_id.data:
-                book.section_id = form.section_id.data
             if form.book_pic.data:
                 book.book_pic = form.book_pic.data.read()
 
