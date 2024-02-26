@@ -64,10 +64,6 @@ class  Users(db.Model, UserMixin):
     books = db.relationship("Books",secondary = users_books )
     role = db.Column(db.String(10) , default = "User")
     feedback = db.relationship("Feedbacks")
-    
-    #delete this column
-    restrictions = db.relationship("Restrictions")
-  
     logins = db.Column(db.Integer(),default = 0)
     no_books_requested = db.Column(db.Integer(),default = 0)
 
@@ -89,11 +85,7 @@ class Books(db.Model):
     description =  db.Column(db.String(length = 60) , nullable = False )
     content =  db.Column(db.LargeBinary() , nullable = False ) #verybad practice need cloud for actual data and just store metadata
     section_id =  db.Column(db.Integer,db.ForeignKey("sections.id"))
-    feedback = db.relationship("Feedbacks",cascade="all, delete")
-    
-    #delete this column
-    restrictions = db.relationship("Restrictions",cascade="all, delete" )
-    
+    feedback = db.relationship("Feedbacks",cascade="all, delete")  
     requests = db.relationship("Requests",cascade="all, delete")
     rating = db.Column(db.Integer() , default = 5)
     current_readers = db.relationship("Users",secondary = users_books )
@@ -134,13 +126,6 @@ class Requests(db.Model):
  
     def __repr__(self) -> str:
         return f"Book: {Books.query.get(self.book_id)}; date:{self.date} ; Status:{self.status}"
-
-#Delete This Table
-class Restrictions(db.Model):
-    __tablename__ = "restrictions"
-    id = db.Column(db.Integer(), primary_key = True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
-    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'))
 
 
 

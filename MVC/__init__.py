@@ -21,7 +21,7 @@ to each web request, models, and engines
 
 #----------------------------------------------------------------
 
-from flask import Flask,render_template , flash , request , redirect , url_for
+from flask import Flask
 
 
 """
@@ -36,15 +36,9 @@ from flask_login import LoginManager
 """
 Flask-Login provides user session management for Flask. 
 It handles the common tasks of logging in, logging out, and remembering your 
-users’ sessions over extended periods of time.
+user's sessions over extended periods of time.
 https://flask-login.readthedocs.io/en/latest/
 """
-
-from flask_login import login_user, logout_user , login_required , current_user #TODO
-
-
-
-
 #--------------------------------------------------------
 """ 
 __name__ is standard python variable that tells the where the script is being run
@@ -81,7 +75,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///LMS.db'
 """
 USING  flask_sqlalchemy to give our flask app all the features and ORM's that a database
 needs configured over SQLALCHEMY
-
 """
 
 #Create the db object using the SQLAlchemy constructor.
@@ -102,10 +95,10 @@ migrate = Migrate(app, db ,render_as_batch=True)
 login_manager = LoginManager()
 
 login_manager.init_app(app)
-login_manager.login_view = "login"
-login_manager.login_message_category = "info"
+login_manager.login_view = "login" #function name
+login_manager.login_message_category = "info" #the category for the flash message
 
-
+#All the intricacies for logging
 
 #------------------------------------------------------------------
 from MVC import Views_Routes #to avoid circular imports
