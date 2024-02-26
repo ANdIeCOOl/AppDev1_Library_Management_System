@@ -898,18 +898,9 @@ def Section(section_id):
             section.description = form.description.data
 
         section.verified = True
-        db.session.commit()
-        books1 = BooksTable.query.filter_by(section_id = section_id).all()
-        all_books = db.session.execute(db.select(BooksTable)).scalars()
-        print("1-"*10)
-        print("4--",len(all_books))
-        for book in all_books:
-            print(book.title)
-            print("2-"*10)
-
-        print("3-"*10)
-            
-        return render_template("AdminParticularSection.html",books = books1,all_books = all_books,section = section,form = form)
+        db.session.commit() 
+        flash("Section Updated", category="success") 
+        return redirect(url_for("Sections",section_id = section_id)) 
     
 
      
@@ -933,7 +924,7 @@ def Section(section_id):
             return render_template("UserParticularSection.html",books = books,section = section)
 
 #-----------------------------------------------------------------------------
-@app.route("/Sections/AddBook/Section_<int:section_id> Book:<book_id>" , methods = ['GET' , 'POST'])
+@app.route("/Sections/AddBook/Section_<int:section_id> Book_<book_id>" , methods = ['GET' , 'POST'])
 @login_required
 def AddBookToSection(section_id, book_id):
     book = BooksTable.query.filter_by(id = book_id).first()
@@ -944,6 +935,20 @@ def AddBookToSection(section_id, book_id):
     book.verified = True
     db.session.commit()
     flash("Book Has successfully been added",category="success")
+    return redirect(url_for("Section",section_id = section_id))
+
+#-----------------------------------------------------------------------------
+@app.route("/Sections/RemoveBook/Section_<int:section_id> Book_<book_id>" , methods = ['GET' , 'POST'])
+@login_required
+def RemoveBookFromSection(section_id, book_id):
+    book = BooksTable.query.filter_by(id = book_id).first()
+    if (book.section_id == None):
+        flash("Book is already not in any assigned Genre",category="warning")
+        return redirect(url_for("Section",section_id = section_id))
+    book.section_id = None
+    book.verified = True
+    db.session.commit()
+    flash("Book Has successfully been Removed",category="success")
     return redirect(url_for("Section",section_id = section_id))
 
 
@@ -1137,7 +1142,7 @@ def ReadFree(book_id):
                 
     return render_template("Readfree.html",book_id = book_id)
 
-    
+import calendar
 from datetime import date
 from flask import make_response
 @app.route("/Books/<int:book_id>/Read" , methods = ['GET' , 'POST'])
@@ -1162,8 +1167,17 @@ def ReadBook(book_id):
            """
         if entry:
             x = entry[2].rsplit("/")
+            if(calendar.monthrange(int(x[2]), int(x[1]))[1] > int(x[0]) + 7 ):
+                dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
+            elif (int(x[1])+1 < 12):
+                y = (int(x[0]) + 7) - calendar.monthrange(int(x[2]), int(x[1]))[1] 
+                dor = date(int(x[2]),int(x[1])+1, y)
+            else:
+                y = (int(x[0]) + 7) - calendar.monthrange(int(x[2]), int(x[1]))[1]
+                dor = date(int(x[2]) + 1,0, y)
 
-            dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
+            """except:
+                pass"""
             if dor > date.today():
                 book = BooksTable.query.filter_by(id = book_id).first()
                 
