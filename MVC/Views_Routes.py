@@ -47,7 +47,9 @@ from base64 import b64encode
 
 #blob into pictures and pdfs to render in the webapp
 ##-----------------------------------------------------------
-
+import re
+sql_injection_pattern = "[\s]*((delete)|(exec)|(drop\s.table)|(insert)|(shutdown)|(update)|(\bor\b))"
+#-------------------------------------------------------------------------------
 
 #NAV BAR SEARCH FORM
 """
@@ -84,6 +86,12 @@ def login():
 
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
+        if(re.match(sql_injection_pattern,form.username.data, re.IGNORECASE) or 
+           re.match(sql_injection_pattern,form.password.data, re.IGNORECASE)):
+            flash("MR HACKER, YOUR IP HAS BEEN REPORTED TO THE INTERNET POLICE",
+                  category="danger")
+            return redirect(url_for("login"))
+            
         user = Users.query.filter_by(username = form.username.data).first()
         if user:              
             if check_password_hash(user.password_hash,form.password.data):
@@ -116,6 +124,9 @@ def logout():
 
 #--------------------------------------------------------------
 #REGISTRATION
+import re
+sql_injection_pattern = "[\s]*((delete)|(exec)|(drop\s*table)|(insert)|(shutdown)|(update)|(\bor\b))"
+
 
 @app.route("/register" , methods = ['GET','POST'])
 def register():
@@ -123,6 +134,13 @@ def register():
     print(form.validate_on_submit())
 
     if form.validate_on_submit():
+        if(re.match(sql_injection_pattern,form.username.data, re.IGNORECASE) or 
+           re.match(sql_injection_pattern,form.name.data, re.IGNORECASE) or
+           re.match(sql_injection_pattern,form.password.data, re.IGNORECASE) or
+           re.match(sql_injection_pattern,form.confirm_password.data, re.IGNORECASE)):
+            flash("MR HACKER, YOUR IP HAS BEEN REPORTED TO THE INTERNET POLICE",
+                  category="danger")
+            return redirect(url_for("login"))
         user = Users.query.filter_by(username = form.username.data).first()
         if user:    
             flash("Username is already taken", category="info")
@@ -173,6 +191,10 @@ def Home():
 def Search():
     form1 = Controller_Forms.SearchForm()
     if form1.validate_on_submit:
+        if(re.match(sql_injection_pattern,form1.search.data, re.IGNORECASE)):
+            flash("MR HACKER, YOUR IP HAS BEEN REPORTED TO THE INTERNET POLICE",
+                  category="danger")
+            return redirect(url_for("Home"))
         search = f"%{form1.search.data}%"
         search_in = form1.lookfor.data
 
@@ -735,6 +757,11 @@ def ReturnBook(book_id):
         flash("Thanks for returning the Book",category="success")
         return render_template("UserFeedback.html",form=form,book_id = book_id)
     elif form.validate_on_submit:
+        if(re.match(sql_injection_pattern,form.feedback.data, re.IGNORECASE)):
+            flash("MR HACKER, YOUR IP HAS BEEN REPORTED TO THE INTERNET POLICE",
+                  category="danger")
+            return redirect(url_for("login"))
+        #DELETE ACCOUNT?
         feedback = Feedbacks(book_id = book_id,
                                   user_id = current_user.id,
                                   feedback = form.feedback.data,
