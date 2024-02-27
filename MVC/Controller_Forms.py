@@ -1,8 +1,30 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField,IntegerField,SelectField,SearchField
+"""Simple integration of Flask and WTForms, including CSRF, file upload, and reCAPTCHA.
+https://flask-wtf.readthedocs.io/en/0.15.x/"""
+
+#--------------------------------------------------------------------
+
+from wtforms import StringField, SubmitField, PasswordField,IntegerField,SelectField,SearchField
+
+"""
+WTForms is a flexible forms validation and rendering library for Python web development.
+It can work with whatever web framework and template engine you choose. 
+It supports data validation, CSRF protection, internationalization (I18N), and more. 
+There are various community libraries that provide closer integration with
+popular frameworks.
+"""
+#--------------------------------------------------------------------
 from flask_wtf.file import FileField,FileRequired,FileAllowed
-from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,NumberRange
-from datetime import date
+#Validators for form fields that include file uploads
+
+#--------------------------------------------------------------------
+from wtforms.validators import Length, EqualTo, DataRequired,NumberRange
+"""
+Validators for Form Fields
+"""
+
+#--------------------------------------------------------------------
+
 
 class LoginForm(FlaskForm):
     username = StringField("Username" , validators=[DataRequired()])
@@ -15,11 +37,6 @@ class RegisterForm(FlaskForm):
 	password = PasswordField('Password', validators=[DataRequired(), EqualTo('confirm_password', message='Passwords Must Match!')])
 	confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
 	submit = SubmitField("Register")  
-	
-class FeedBackForm(FlaskForm):
-	feedback = StringField("Feedback", validators=[DataRequired() , Length(max=300)])
-	rating = IntegerField("Rating",validators=[DataRequired()])
-	submit = SubmitField("Give FeedBack")  
 	
 
 class UploadBookForm(FlaskForm):
