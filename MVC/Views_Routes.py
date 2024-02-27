@@ -261,8 +261,15 @@ def UserRequestSubmit(book_id):
                 return redirect(url_for("ModifyUser",user_id = current_user.id))
 
             try:
-                requests = RequestsTable(user_id = current_user.id,book_id = book_id)
+                print("1---"*10)
+                try:
+                    requests = RequestsTable(user_id = current_user.id,book_id = book_id)
+                except:
+                    flash("You have already requested the book123123",category="warning")
+                    return redirect(url_for("Books"))
+
                 book = BooksTable.query.filter_by(id = book_id).first()
+                print("2---"*10)
                 book.requests = book.requests + 1
                 book.verified = True
                 current_user.no_books_requested += 1
@@ -270,9 +277,11 @@ def UserRequestSubmit(book_id):
                     section = SectionTable.query.filter_by(id = book.section_id).first()
                     section.requests += 1
                     section.verified = True
-
+                print("3---"*10)
                 db.session.add(requests)
+                print("4---"*10)
                 db.session.commit()
+                print("5---"*10)
                 flash("Your request has been sumbitted.\n Waiting for confirmation",category="success")
                 return redirect(url_for("Books"))
             except:

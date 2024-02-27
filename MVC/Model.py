@@ -118,7 +118,7 @@ class Feedbacks(db.Model):
 class Requests(db.Model):
     __tablename__ = "requests"
     id = db.Column(db.Integer(), primary_key = True)
-    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'),nullable = False,unique = True)
+    book_id = db.Column(db.Integer(), db.ForeignKey('books.id'),nullable = False)
 
     date =  db.Column(db.String(length = 60) , nullable = False,default =date.today().strftime(f"%d/%m/%Y")  )
     status =  db.Column(db.String(length = 60) , nullable = False , default = "Pending" )
