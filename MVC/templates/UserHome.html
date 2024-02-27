@@ -12,7 +12,9 @@ Welcome
         <div class="col-md-8">
             <div class="card-body" style = "color: white;" >
             <h5 class="card-title">{{current_user.name}}</h5>
-            <p class="card-text">Take a look at  your profile.</p>
+            <p class="card-text">
+                Take a look at  your profile.
+            </p>
             <a href="{{url_for('ModifyUser',user_id = current_user.id)}}" class="btn  stretched-link">View Your Profile</a>
         </div>   
         </div>
@@ -32,7 +34,9 @@ Welcome
         <div class="col-md-8">
             <div class="card-body" style = "color: white;" >
             <h5 class="card-title"> Analytics</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">
+                Take a look at  your profile vs other profiles.
+            </p>
             <a href="{{url_for('Analytics')}}" class="btn  stretched-link">View  Analytics</a>
         </div>
         </div>
@@ -52,7 +56,9 @@ Welcome
         <div class="col-md-8">
             <div class="card-body" style = "color: white;" >
             <h5 class="card-title">Library</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">
+                Want to Browse the Library?
+            </p>            
             <a href="{{url_for('Books')}}" class="btn  stretched-link">View All Books</a>
         </div>
         </div>
@@ -72,7 +78,9 @@ Welcome
         <div class="col-md-8">
             <div class="card-body" style = "color: white;" >
             <h5 class="card-title">Genre</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">
+                In the mood for something particular?
+            </p> 
             <a href="{{url_for('Sections')}}" class="btn  stretched-link">View All Genres</a>
         </div>
         </div>
@@ -92,7 +100,9 @@ Welcome
         <div class="col-md-8">
             <div class="card-body" style = "color: white;" >
             <h5 class="card-title">Request a Book</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text">
+                Want access to knowledge?
+            </p> 
             <a href="{{url_for('Books')}}" class="btn  stretched-link">Request a Book</a>
         </div>
         </div>

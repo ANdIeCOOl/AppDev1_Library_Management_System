@@ -75,8 +75,8 @@ Profiles
                         <div class="card-body">
                           <h5 class="card-title">{{book.title}}</h5>
                           <p class="card-text">{{book.description}}</p>
-                          <a href="{{url_for('Book',book_id = book.id)}}" class="btn btn-primary  stretched-link">Visit Book</a>
-                          <a href="{{url_for('RemoveBookFromSection',section_id = section.id,book_id = book.id)}}" class="btn btn-danger  stretched-link">Remove Book</a>
+                          <a href="{{url_for('Book',book_id = book.id)}}" class="btn btn-primary  ">Visit Book</a>
+                          <a href="{{url_for('RemoveBookFromSection',section_id = section.id,book_id = book.id)}}" class="btn btn-danger ">Remove Book</a>
                         </div>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ Profiles
                         </div>
                         <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <a type = "button" href="#" class="btn btn-danger">Delete Book</a>
+                     
                         </div>
                     </div>
                     </div>

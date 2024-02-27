@@ -38,11 +38,6 @@ class RegisterForm(FlaskForm):
 	confirm_password = PasswordField('Confirm Password', validators=[DataRequired()])
 	submit = SubmitField("Register")  
 	
-class FeedBackForm(FlaskForm):
-	feedback = StringField("Feedback", validators=[DataRequired() , Length(max=300)])
-	rating = IntegerField("Rating",validators=[DataRequired()])
-	submit = SubmitField("Give FeedBack")  
-	
 
 class UploadBookForm(FlaskForm):
     title =  StringField("Title", validators=[DataRequired()])

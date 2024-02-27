@@ -23,7 +23,7 @@ from MVC import db
 
 from io import BytesIO
 
-#conver pyplot to png
+#convert pyplot to png
 #-----------------------------------------------------------
 
 
@@ -43,7 +43,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 #Standard practise
 ##-----------------------------------------------------------
 
-from base64 import b64encode,b64decode
+from base64 import b64encode
 
 #blob into pictures and pdfs to render in the webapp
 ##-----------------------------------------------------------
@@ -97,8 +97,6 @@ def login():
                 return redirect(url_for("Home"))
             else:
                 flash("Please check entered Password and try again" , category="danger")
-                #automatically goes to login page with form half filled?
-                #CHECK THIS
         else:
             flash("User does not exist",category="warning")
             return redirect(url_for("login"))
@@ -109,17 +107,12 @@ def login():
 
 #--------------------------------------------------------------------------------------
 #LOGOUT-------------------------------------------------------------------------------
-
-
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     flash("You have been successfully logged out", category="success")
     return redirect(url_for("index"))
-
-
-
 
 #--------------------------------------------------------------
 #REGISTRATION
@@ -129,18 +122,12 @@ def register():
     form = Controller_Forms.RegisterForm()
     print(form.validate_on_submit())
 
-
     if form.validate_on_submit():
-    # ):
-    #if request.method == "POST":
         user = Users.query.filter_by(username = form.username.data).first()
-        
         if user:    
             flash("Username is already taken", category="info")
             return redirect(url_for("register"))     
-       
         else:
-            
             if (form.password.data == form.confirm_password.data):
                 New_User = Users(username=form.username.data,
                                  name = form.name.data,
@@ -150,18 +137,16 @@ def register():
                 db.session.commit() 
                 login_user(New_User)
                 flash("Registration Successfull" , category="success")
-                return redirect(url_for("Home"))
-            
+                return redirect(url_for("Home")) 
             else:
                 flash("Passwords did not match" , category="warning")
                 return redirect(url_for("register"))
-    
+            
     elif request.method == "POST":
         for fieldName, errorMessages in form.errors.items():
             for error in errorMessages:
                 flash(error,category="danger")
         return redirect(url_for("register"))
-
     
     return render_template("register.html",form = form)
 
@@ -188,10 +173,9 @@ def Home():
 def Search():
     form1 = Controller_Forms.SearchForm()
     if form1.validate_on_submit:
-        
         search = f"%{form1.search.data}%"
         search_in = form1.lookfor.data
-        print(search_in) 
+
         if search_in == "Books":
             data = BooksTable.query.filter((BooksTable.title.like(search))).all()
             return render_template("Search.html",search = form1.search.data , data = data,search_in=search_in)
@@ -243,11 +227,17 @@ def Requests():
 #USER REQUESTING BOOK
 #-------
 #CHECK IF YOU NEED POST Metho
+    
 @app.route("/Requesting <int:book_id>" , methods = ["GET","POST"])
 @login_required
 def UserRequestSubmit(book_id):
     if request.method == "GET":
         if len(current_user.books) < 5:
+            book = BooksTable.query.filter_by(id = book_id).first()
+            if book in current_user.books:
+                flash("Already in your Library",category="info")
+                return redirect(url_for("ModifyUser",user_id = current_user.id))
+
             try:
                 requests = RequestsTable(user_id = current_user.id,book_id = book_id)
                 book = BooksTable.query.filter_by(id = book_id).first()
@@ -274,17 +264,6 @@ def UserRequestSubmit(book_id):
 """
 LVL 2
 """
-#Pending Requests
-#DOESNT COME HERE AT ALL 
-@app.route("/Requests/Pending")
-@login_required
-def PendingRequests():
-    if (current_user.role == "Administrator"):
-        return render_template("AdminRequestsPending.html")
-    else:
-        return render_template("UserRequestsPending.html")
-
-
 #Accept request 
 @app.route("/Requests/Approve<int:request_id>")
 @login_required
@@ -305,8 +284,7 @@ def AcceptRequest(request_id):
             
             db.session.delete(request)
             flash("Request Approved",category="success")
-
-            db.session.commit() #ITS NEED TO MAKED CHANGES PERMANANT LOL
+            db.session.commit()
             return redirect(url_for("Requests"))
         else:
             flash("User can have maximum of five books",category="warning")
@@ -315,7 +293,7 @@ def AcceptRequest(request_id):
             return redirect(url_for("Requests"))
 
     else:
-        return redirect(url_for("Home")) #logut user later
+        return redirect(url_for("Home")) 
     
 
 #REject request 
@@ -333,17 +311,6 @@ def RejectRequest(request_id):
 
     else:
         return redirect(url_for("Home")) #logut user later
-
-
-#Request history for analytics maybe in the future  
-  #DOESNT CCOME HERE   
-@app.route("/Requests/History")
-@login_required
-def RequestsHistory():
-    if (current_user.role == "Administrator"):
-        return render_template("AdminRequestsHistory.html")
-    else:
-        return render_template("UserRequestsHistory.html")
 
 #----------------------
 #Revoke access to Book for user no need restict user and book id 
@@ -432,14 +399,21 @@ def UsersAnalytics():
             ax.set_ylim(0,max(max(visits),max(requests)) + 10)
 
             buf = BytesIO()
+            """
+            Binary I/O (also called buffered I/O) expects bytes-like objects and 
+            produces bytes objects. 
+            No encoding, decoding, or newline translation is performed
+            https://docs.python.org/3/library/io.html#binary-i-o
+            """
 
             fig.savefig(buf , format = "png")
 
-            user_login_data = b64encode(buf.getbuffer()).decode("ascii")
-            return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
+            data = b64encode(buf.getbuffer()).decode("ascii")
+            return render_template ("SingleUserProfileAnalytics.html", data=data)
 
     
     else:
+        #Individual User Analytics(Micro Analytics)
         user_login_data = None
         users = db.session.execute(db.select(Users)).scalars()
         feedbacks = Feedbacks.query.filter_by(user_id = current_user.id).all()
@@ -500,19 +474,13 @@ def UsersAnalytics():
 
             fig.savefig(buf , format = "png")
 
-            user_login_data = b64encode(buf.getbuffer()).decode("ascii")
-            return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
+            data = b64encode(buf.getbuffer()).decode("ascii")
+            return render_template ("SingleUserProfileAnalytics.html", data = data)
 
 
         #compare user books requested with avg user books requested --> categorical bargraph
         # users feed backs of books bookname-->x axis , rating --> y axis
 
-
-#System Analytics Visits CLicks etc
-@app.route("/Analytics/System" , methods = ['GET' , 'POST'])
-@login_required
-def SystemAnalytics():
-    pass
 #Book Analytics highest rating, most requested etc
 @app.route("/Analytics/Books" , methods = ['GET' , 'POST'])
 @login_required
@@ -521,65 +489,70 @@ def BooksAnalytics(): #ALL BOOKS
         visits = []
         rating = []
         books = db.session.execute(db.select(BooksTable)).scalars()
-        for book in books:
-            requests.append(book.requests)
-            visits.append(book.visits)
-            rating.append(book.rating)
+        if books:
+                
+            for book in books:
+                requests.append(book.requests)
+                visits.append(book.visits)
+                rating.append(book.rating)
 
-        requests = np.array(requests)
-        visits = np.array(visits)
-        rating = np.array(rating)
+            requests = np.array(requests)
+            visits = np.array(visits)
+            rating = np.array(rating)
 
-        n = db.session.query(BooksTable).count() 
-            
-            
-        plt.style.use('dark_background') 
-        fig, ax = plt.subplots(layout='constrained')
-        colors = np.random.rand(n)
-        plt.scatter(requests, visits, c=colors)
-        ax.set_title('Vists Vs Requests for all the Books')
-        ax.set_ylabel('Vists ')
-        ax.set_xlabel('Requests ')
+            n = db.session.query(BooksTable).count() 
+                
+                
+            plt.style.use('dark_background') 
+            fig, ax = plt.subplots(layout='constrained')
+            colors = np.random.rand(n)
+            plt.scatter(requests, visits, c=colors)
+            ax.set_title('Vists Vs Requests for all the Books')
+            ax.set_ylabel('Vists ')
+            ax.set_xlabel('Requests ')
 
-        buf = BytesIO()
+            buf = BytesIO()
 
-        fig.savefig(buf , format = "png")
+            fig.savefig(buf , format = "png")
 
-        book_data1 = b64encode(buf.getbuffer()).decode("ascii")
+            book_data1 = b64encode(buf.getbuffer()).decode("ascii")
 
-        plt.style.use('dark_background') 
-        fig, ax = plt.subplots(layout='constrained')
-        colors = np.random.rand(n)
-        plt.scatter(requests, rating, c=colors)
-        ax.set_title('Ratings Vs Requests for all the Books')
-        ax.set_ylabel('Ratings ')
-        ax.set_xlabel('Requests ')
+            plt.style.use('dark_background') 
+            fig, ax = plt.subplots(layout='constrained')
+            colors = np.random.rand(n)
+            plt.scatter(requests, rating, c=colors)
+            ax.set_title('Ratings Vs Requests for all the Books')
+            ax.set_ylabel('Ratings ')
+            ax.set_xlabel('Requests ')
 
-        buf = BytesIO()
+            buf = BytesIO()
 
-        fig.savefig(buf , format = "png")
+            fig.savefig(buf , format = "png")
 
-        book_data2 = b64encode(buf.getbuffer()).decode("ascii")
+            book_data2 = b64encode(buf.getbuffer()).decode("ascii")
 
-        plt.style.use('dark_background') 
-        fig, ax = plt.subplots(layout='constrained')
-        colors = np.random.rand(n)
-        plt.scatter( rating, visits ,c=colors)
-        ax.set_title('Visits Vs Ratings for all the Books')
-        ax.set_ylabel('Visits ')
-        ax.set_xlabel('Rating ')
+            plt.style.use('dark_background') 
+            fig, ax = plt.subplots(layout='constrained')
+            colors = np.random.rand(n)
+            plt.scatter( rating, visits ,c=colors)
+            ax.set_title('Visits Vs Ratings for all the Books')
+            ax.set_ylabel('Visits ')
+            ax.set_xlabel('Rating ')
 
-        buf = BytesIO()
+            buf = BytesIO()
 
-        fig.savefig(buf , format = "png")
+            fig.savefig(buf , format = "png")
 
-        book_data3 = b64encode(buf.getbuffer()).decode("ascii")
+            book_data3 = b64encode(buf.getbuffer()).decode("ascii")
 
 
 
-        return render_template ("Books_ANAlytics.html",book_data1 = book_data1 
-                                                        ,book_data2= book_data2
-                                                        ,book_data3= book_data3)
+            return render_template ("Books_ANAlytics.html",book_data1 = book_data1 
+                                                            ,book_data2= book_data2
+                                                            ,book_data3= book_data3)
+        else:
+            flash("There are no Books to Display Analytics",category="warning")
+            return redirect(url_for("Analytics"))
 
 #Section Analytics highest rating, most visted etc
 @app.route("/Analytics/Sections" , methods = ['GET' , 'POST'])
@@ -595,23 +568,12 @@ def SectionsAnalytics():
             visits.append(section.visits)
             requests.append(section.requests)        
 
-
-
         All_info = [name for name in names]
         Some_data = {
             "Visits":visits,
             "Requests":requests 
-        }
-                    
+        }             
         plt.style.use('dark_background')
-        """fig, ax = plt.subplots()
-            ax.plot([1,2])
-            user_axis = [current_user.name , "Other Users Average"]
-            login_axis = [current_user.logins , sum/n ]
-            bar_container = ax.bar(user_axis, login_axis)
-            ax.set(ylabel='Logins', title='Login Comparison', ylim=(0,max(current_user.logins  ,sum/n ) ))
-            ax.bar_label(bar_container, fmt='{:,.0f}')"""
-
         x = np.arange(len(All_info))  # the label locations
         width = 0.25  # the width of the bars
         multiplier = 0
@@ -628,19 +590,20 @@ def SectionsAnalytics():
         ax.set_title('Sectionwise Visits and Requests')
         ax.set_xticks(x + width, All_info)
         ax.legend(loc='upper left', ncols=3)
-        ax.set_ylim(0,max(max(visits),max(requests)) + 30)
+        try:
+            ax.set_ylim(0,max(max(visits),max(requests))+30)
+        except:
+            ax.set_ylim(0,10)
 
 
         buf = BytesIO()
 
         fig.savefig(buf , format = "png")
 
-        user_login_data = b64encode(buf.getbuffer()).decode("ascii")
-        return render_template ("SingleUserProfileAnalytics.html", user_login_data= user_login_data)
-    
-    
+        data = b64encode(buf.getbuffer()).decode("ascii")
+        return render_template ("SingleUserProfileAnalytics.html", data=data)
     else:
-        flash("There no Sections to Display Analytics",category="warning")
+        flash("There are no Sections to Display Analytics",category="warning")
         return redirect(url_for("Analytics"))
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
@@ -828,7 +791,7 @@ def DeleteUser(user_id):
             user = Users.query.filter_by(id = user_id).first()
             if user:
                 db.session.execute(users_books.delete().where(users_books.columns.user_id == user.id))
-                Feedbacks.query.filter(id =user_id).delete()
+                Feedbacks.query.filter_by(user_id =user_id).delete()
                 #CHECK IF DELETING ROW
                 db.session.delete(user)
                 db.session.commit()
@@ -991,9 +954,6 @@ def DeleteSection(section_id):
 
 
 #--------------------------------------------------------------------------------------
-#Need to update books and blob datatype also need to modify database so save this for 
-    # later
-
 #-------------------------------------------------------------------
 
 
@@ -1134,6 +1094,7 @@ def Book(book_id):
 #--------------------
 #READ A BOOK
 #---------
+@login_required
 @app.route('/ReadPDF/<book_id>')
 def ReadinBrowser(book_id):
     if book_id is not None:
@@ -1144,6 +1105,8 @@ def ReadinBrowser(book_id):
         response.headers['Content-Disposition'] = \
             'inline; filename=%s.pdf' % 'yourfilename'
         return response
+
+@login_required
 @app.route('/ReadPDF4Free/<book_id>')  
 def ReadFree(book_id):
     book = BooksTable.query.filter_by(id = book_id).first()
@@ -1168,6 +1131,12 @@ def ReadBook(book_id):
         entry = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id)).first()
 
         if entry:
+            """  
+            Definition and Usage
+            The rsplit() method splits a string into a list, starting from the right.
+            If no "max" is specified, this method will return the same as the split() method
+            """
+
             x = entry[2].rsplit("/")
             if(calendar.monthrange(int(x[2]), int(x[1]))[1] > int(x[0]) + 7 ):
                 dor = date(int(x[2]),int(x[1]),int(x[0]) + 7)
@@ -1178,8 +1147,6 @@ def ReadBook(book_id):
                 y = (int(x[0]) + 7) - calendar.monthrange(int(x[2]), int(x[1]))[1]
                 dor = date(int(x[2]) + 1,0, y)
 
-            """except:
-                pass"""
             if dor > date.today():
                 book = BooksTable.query.filter_by(id = book_id).first()
                 
@@ -1196,10 +1163,10 @@ def ReadBook(book_id):
 
         else:
             flash("You dont have access to this Book." , category="warning")
-            return redirect(url_for("ModifyUser",user_id = current_user.id))
+            return redirect(url_for("Books"))
 
 #--------------------------------------------------------------------------------------
-#Book DELETETION
+#Book DELETION
 #-------------------------------------------------------------------------------
 from sqlalchemy import delete
 
@@ -1224,10 +1191,9 @@ def DeleteBook(book_id):
                 category="danger")
             logout_user()
             return redirect(url_for("index"))
-
     else:
-        render_template("DeleteUser.html") #  never come here but for 
-                                        #            testing purposes
+        flash("How did you even get here",category="warning")
+        return redirect(url_for("Books"))
 
 
 #----------------------------------------------------------------
@@ -1244,7 +1210,7 @@ from flask import jsonify
 #D DELETE X
 #--------------
 
-class SectionsAPI(Resource): # C R
+class SectionsAPI(Resource): # R
     def get(self):
         mydict = {}
         sections = db.session.execute(db.select(SectionTable)).scalars()
@@ -1254,12 +1220,7 @@ class SectionsAPI(Resource): # C R
         stud_json = jsonify(mydict)
         return stud_json
     
-    
-    def post(self):
-        pass
-    
-
-class SectionAPI(Resource): # R U D
+class SectionAPI(Resource): # R 
     def get(self,section_id):
         section = SectionTable.query.filter_by(id = section_id).first()
         books= BooksTable.query.filter_by(section_id = section_id).all()
@@ -1275,20 +1236,8 @@ class SectionAPI(Resource): # R U D
                                 "Title":book.title,
                                 "Author":book.author,
                                 "Description":book.description}
-
-
-   
         return jsonify(Dict)
     
-    def delete(self,section_id):
-        pass
-    def put(self,section_id):
-        pass
-    
-
-
-
-
 class BooksAPI(Resource): # C R
     def get(self):
         mydict = {}
@@ -1303,7 +1252,7 @@ class BooksAPI(Resource): # C R
         pass
 
 
-class BookAPI(Resource): # R U D
+class BookAPI(Resource): # R 
     def get(self,book_id):
         book = BooksTable.query.filter_by(id = book_id).first()
         Dict= {"Rating":book.rating,
@@ -1315,30 +1264,6 @@ class BookAPI(Resource): # R U D
        
         return jsonify(Dict)
     
-
-    def delete(self,book_id):
-        pass
-    def put(self,book_id):
-        pass
-
-
-
-
-
-"""class UsersAPI(Resource):
-    def get(self):
-        pass
-    def put(self):
-        pass
-    pass
-class FeedbacksAPI(Resource):
-    def get(self):
-        pass
-    def put(self):
-        pass
-    pass"""
-
-
 class AnalyticsAPI(Resource):
     def get(self):
         users = db.session.execute(db.select(Users)).scalars()
@@ -1351,30 +1276,21 @@ class AnalyticsAPI(Resource):
                 visits.append(section.logins)
                 requests.append(section.no_books_requested)        
 
-
-
-            All_info = [name for name in names]
             Some_data = {
                 "Logins":visits,
                 "Requests":requests 
                 }
-
             stud_json = jsonify(Some_data)
             mydict = {}
             feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
             for feedback in feedbacks:
                 mydict[feedback.book_id] = {"FeedBack":feedback.feedback,"Rating":feedback.rating}
-            stud_json1 = jsonify(mydict)
-
             newD = {"Feedbacks":mydict,
                     "LoginsVsRequests":Some_data
             }
-
             aa = jsonify(newD)
             return aa
         
-
-
 api.add_resource(SectionsAPI, '/api/Sections')
 api.add_resource(BooksAPI, '/api/Books')
 api.add_resource(AnalyticsAPI, '/api/Analytics')
