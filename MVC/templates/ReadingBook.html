@@ -4,7 +4,8 @@
 FREE???
 {% endblock %}
 {% block content %}
-
+<a href="{{url_for('Books')}}" class="btn btn-secondary " style="right:10rem;">GO BACK</a>
+<br><br>
 <a href="{{url_for('ReadFree',book_id=book_id)}}" class="btn btn-success ">DOWNLOAD NOW</a>
 <p style = "color: white;"> Disclaimer: by clicking Download, you don't have to pay </p>
 <br>
