@@ -241,8 +241,6 @@ def Requests():
 
 
         return render_template("AdminRequests.html" , requests = req)
-    else:
-        return render_template("UserRequests.html") #DOESNT COME HERE
     
 
 #--------------
@@ -488,7 +486,7 @@ def UsersAnalytics():
             ax.set_title('You Vs Average User')
             ax.set_xticks(x + width, All_info)
             ax.legend(loc='upper left', ncols=3)
-            ax.set_ylim(0,max(sum))
+            ax.set_ylim(0,max(sum) +10)
 
 
             buf = BytesIO()
@@ -821,6 +819,7 @@ def DeleteUser(user_id):
             if user:
                 db.session.execute(users_books.delete().where(users_books.columns.user_id == user.id))
                 Feedbacks.query.filter_by(user_id =user_id).delete()
+                RequestsTable.query.filter_by(user_id =user_id).delete()
                 #CHECK IF DELETING ROW
                 db.session.delete(user)
                 db.session.commit()
@@ -833,14 +832,13 @@ def DeleteUser(user_id):
                 category="danger")
             user = Users.query.filter_by(id = current_user.id).first()
             db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id))
+            Feedbacks.query.filter_by(user_id =current_user.id).delete()
+            RequestsTable.query.filter_by(user_id =current_user.id).delete()
             logout_user()
             db.session.delete(user)
             db.session.commit()
             return redirect(url_for("index"))
 
-    else:
-        render_template("DeleteUser.html") #  never come here but for 
-                                        #            testing purposes
 
 
 

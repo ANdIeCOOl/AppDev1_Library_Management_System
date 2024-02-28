@@ -9,6 +9,7 @@ Profiles
 
     <div class="container">
         <div class="row">
+            {% if books|length > 0 %}
             {% for book in books %}
         
 
@@ -24,6 +25,9 @@ Profiles
                 </div>
     
             {% endfor %}
+            {% else %}
+            <h1 style="color: white;" class="display-6 ">Nothing to Display Here</h1>
+            {% endif%}
         </div>
     </div>
 
