@@ -1,14 +1,10 @@
 
 #------------
-
-
 from datetime import date
-
 #---------------------------------
 """
 URL : https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#many-to-many
 """
-
 #------------------------------------------------
 #-------------------------------------------------------------------------
 from flask_login import UserMixin
@@ -26,8 +22,6 @@ imports the database object and login manager object to
 give functionality to the database
 
 """
-
-
 #-----------------------------------------------------------
 @login_manager.user_loader
 def load_user(user_id):

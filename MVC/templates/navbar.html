@@ -1,8 +1,9 @@
 
-<!-- ADD SEARCH TO NAV BAR-->
 
-<nav class="navbar bg-dark border-bottom border-body" data-bs-theme="dark">
+<nav class="navbar bg-dark border-bottom border-body " data-bs-theme="dark">
     <div class="container-fluid">
+      <!-- <div class=" col-1"></div> -->
+      <a class="navbar-brand" href="/" >LibManage</a>    
       <form class="d-flex" method ="POST" , action="{{url_for('Search')}}">
         {{form1.hidden_tag()}}
 
@@ -17,7 +18,7 @@
       </form>
 
         <div class=" col-1"></div>
-          <a class="navbar-brand" href="/" >LibManage</a>    
+          <!-- <a class="navbar-brand" href="/" >LibManage</a>     -->
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <img src="{{url_for('static',filename = 'animation.gif')}}" style="height: 90px ; width:120px ;"  alt=""/>
           </button>

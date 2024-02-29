@@ -1,7 +1,7 @@
 from MVC import app
 
 
-from flask_restful import Resource,Api
+from flask_restful import Resource,Api,abort
 api = Api(app)
 
 from MVC import Controller_Forms
@@ -47,6 +47,29 @@ from base64 import b64encode
 
 #blob into pictures and pdfs to render in the webapp
 ##-----------------------------------------------------------
+"""
+
+The provided regular expression seems to be aimed at identifying potential SQL injection 
+vulnerabilities in a string. This regex pattern is designed to match any occurrence 
+of SQL commands or keywords within a string
+
+[\s]*: This part matches zero or more whitespace characters.
+((delete)|(exec)|(drop\s.table)|(insert)|(shutdown)|(update)|(\bor\b)): This is the main 
+part of the regex, where it defines various SQL commands or keywords as alternatives 
+separated by |. Here's what each part matches:
+
+    (delete): Matches the SQL DELETE keyword.
+    (exec): Matches the SQL EXEC keyword.
+    (drop\s.table): Matches the SQL DROP TABLE keyword. \s matches whitespace characters.
+    (insert): Matches the SQL INSERT keyword.
+    (shutdown): Matches the SQL SHUTDOWN keyword.
+    (update): Matches the SQL UPDATE keyword.
+    (\bor\b): Matches the SQL OR keyword as a whole word using word boundaries \b.
+
+Overall, this regex pattern aims to detect any SQL commands or keywords that might be
+ used maliciously in a string, potentially indicating an SQL injection vulnerability if 
+ found in user input that interacts with a database
+"""
 import re
 sql_injection_pattern = "[\s]*((delete)|(exec)|(drop\s.table)|(insert)|(shutdown)|(update)|(\bor\b))"
 #-------------------------------------------------------------------------------
@@ -74,12 +97,8 @@ def index():
     else:
        return render_template("index.html") 
 
-
-
 #--------------------------------------------------------------------------------------
 #LOGIN-------------------------------------------------------------------------------
-
-
 
 @app.route("/login" , methods = ['GET','POST'])
 def login():
@@ -111,8 +130,6 @@ def login():
 
     return render_template("login.html",form = form)
 
-
-
 #--------------------------------------------------------------------------------------
 #LOGOUT-------------------------------------------------------------------------------
 @app.route("/logout")
@@ -124,10 +141,6 @@ def logout():
 
 #--------------------------------------------------------------
 #REGISTRATION
-import re
-sql_injection_pattern = "[\s]*((delete)|(exec)|(drop\s*table)|(insert)|(shutdown)|(update)|(\bor\b))"
-
-
 @app.route("/register" , methods = ['GET','POST'])
 def register():
     form = Controller_Forms.RegisterForm()
@@ -171,26 +184,21 @@ def register():
 
 #--------------------------------------------------------------------------------------
 #HOME OR DASHBOARD-------------------------------------------------------------------------------
-
-
-
-@app.route("/Home") #LVL 1
+@app.route("/Home") 
 @login_required
 def Home():
     if (current_user.role == "Administrator"):
         return render_template("AdminHome.html")
     else:
         return render_template("UserHome.html")
-
-
 #--------------------------
 #SEARCH
 #-----------
-    
 @app.route("/Search",methods = ["POST","GET"])
 def Search():
     form1 = Controller_Forms.SearchForm()
     if form1.validate_on_submit:
+
         if(re.match(sql_injection_pattern,form1.search.data, re.IGNORECASE)):
             flash("MR HACKER, YOUR IP HAS BEEN REPORTED TO THE INTERNET POLICE",
                   category="danger")
@@ -219,15 +227,10 @@ def Search():
     else:
         
         return render_template ("Search.html",search = "Something went wrong \n not supposed to come here",
-                                form1 = form1) #Will remove Get
-
+                                form1 = form1) 
 
 #--------------------------------------------------------------------------------------
 #REQUESTS-------------------------------------------------------------------------------
-
-"""
-LVL 1
-"""
 @app.route("/Requests")
 @login_required
 def Requests():
@@ -241,19 +244,21 @@ def Requests():
 
 
         return render_template("AdminRequests.html" , requests = req)
-    
+    else:
+        return redirect(url_for("Home"))
 
 #--------------
 #USER REQUESTING BOOK
-#-------
-#CHECK IF YOU NEED POST Metho
-    
+#-------  
 @app.route("/Requesting <int:book_id>" , methods = ["GET","POST"])
 @login_required
 def UserRequestSubmit(book_id):
     if request.method == "GET":
         if len(current_user.books) < 5:
             book = BooksTable.query.filter_by(id = book_id).first()
+            if(not book):
+                flash(f"Book with ID:{book_id} does not exist",category="danger")
+                return redirect(url_for("Home")) 
             if book in current_user.books:
                 flash("Already in your Library",category="info")
                 return redirect(url_for("ModifyUser",user_id = current_user.id))
@@ -279,7 +284,7 @@ def UserRequestSubmit(book_id):
             flash("You have 5 books in Library, return a book before you request another",category="warning")
             return redirect(url_for("Books"))
     else:
-        render_template("UserRequestprocessing.html")
+        return redirect(url_for("Home"))
 """
 LVL 2
 """
@@ -289,9 +294,11 @@ LVL 2
 def AcceptRequest(request_id):
     if (current_user.role == "Administrator"):
         request = RequestsTable.query.filter_by(id = request_id).first()
+        if(not request):
+                flash(f"Request with ID:{request_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         user = Users.query.filter_by(id = request.user_id).first()
         book = BooksTable.query.filter_by(id = request.book_id).first()
-
         if (len(user.books) < 5):
             try:
                 db.session.execute(users_books.insert().values(user_id = user.id,book_id = book.id))
@@ -314,33 +321,43 @@ def AcceptRequest(request_id):
     else:
         return redirect(url_for("Home")) 
     
-
-#REject request 
+#Reject Book request 
 @app.route("/Requests/Reject<int:request_id>")
 @login_required
 def RejectRequest(request_id):
     if (current_user.role == "Administrator"):
         request = RequestsTable.query.filter_by(id = request_id).first()
+        if(not request):
+                flash(f"Request with ID:{request_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         db.session.delete(request)
+        db.session.commit()
         flash("Request Rejected.",category="warning")
         flash("Congratulations, you have successfully witheld knowledge.",category="success")
-        db.session.commit()
         return redirect(url_for("Requests"))
 
 
     else:
-        return redirect(url_for("Home")) #logut user later
+        return redirect(url_for("Home")) 
 
 #----------------------
 #Revoke access to Book for user no need restict user and book id 
     
 #Revoke access for one or multiple e-book(s) from a user (not for a user so just remove)
 #---------
-    # SEE IF POST IS REQUIRED
 @login_required
-@app.route("/Revoke/<int:book_id><int:user_id>",methods = ["GET","POST"])
+@app.route("/Revoke/Book:<int:book_id> User:<int:user_id>",methods = ["GET","POST"])
 def RevokeBook(book_id,user_id):
     if request.method == "GET" and current_user.role == "Administrator":
+        user = Users.query.filter_by(id = user_id).first()
+        book = BooksTable.query.filter_by(id = book_id).first()
+        if(not book):
+                flash(f"Book with ID:{book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        if(not user):
+                flash(f"User with ID:{user_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        
         db.session.execute(users_books.delete().where(users_books.columns.user_id == user_id).where(users_books.columns.book_id==book_id))
         db.session.commit()
         flash("Access Denied, You have successfully witheld knowledge",category="success")        
@@ -348,18 +365,12 @@ def RevokeBook(book_id,user_id):
     else:
         return redirect(url_for("Home"))
 
-
-
 #--------------------------------------------------------------------------------------
 #ANALYTICS-------------------------------------------------------------------------------
 #-------
-
 import matplotlib.pyplot as plt
 import numpy as np
 
-"""
-LVL 1
-"""
 @app.route("/Analytics" , methods = ['GET' , 'POST'])
 @login_required
 def Analytics():
@@ -368,9 +379,7 @@ def Analytics():
     else:
         return render_template("Analytics_for_User.html")
 
-"""
-LVL 2
-"""  
+
 #ALL USERS ANALYTICS
 @app.route("/Analytics/Users" , methods = ['GET' , 'POST'])
 @login_required
@@ -379,7 +388,8 @@ def UsersAnalytics():
         
         plt.style.use('dark_background')
         users = db.session.execute(db.select(Users)).scalars()
-        if users:
+        n = db.session.query(Users).count() 
+        if n>1:
             names = []
             visits = []
             requests = []
@@ -388,8 +398,6 @@ def UsersAnalytics():
                 names.append(user.name)
                 visits.append(user.logins)
                 requests.append(user.no_books_requested)        
-
-
 
             All_info = [name for name in names]
             Some_data = {
@@ -424,16 +432,14 @@ def UsersAnalytics():
             No encoding, decoding, or newline translation is performed
             https://docs.python.org/3/library/io.html#binary-i-o
             """
-
             fig.savefig(buf , format = "png")
-
             data = b64encode(buf.getbuffer()).decode("ascii")
             return render_template ("SingleUserProfileAnalytics.html", data=data)
-
-    
+        else:
+            flash("There are no Users to Display Analytics",category="warning")
+            return redirect(url_for("Analytics"))
     else:
         #Individual User Analytics(Micro Analytics)
-        user_login_data = None
         users = db.session.execute(db.select(Users)).scalars()
         feedbacks = Feedbacks.query.filter_by(user_id = current_user.id).all()
         user_feedback = 0
@@ -452,9 +458,7 @@ def UsersAnalytics():
             f = 1
         #compare user login with avg user login--> categorical bargraph
 
-        
-        
-        if n > 0 :
+        if n > 0 : #Always True As ReaderSide Analytics
             for user in users:
                 
                 if user.role != "Administrator":
@@ -508,7 +512,9 @@ def BooksAnalytics(): #ALL BOOKS
         visits = []
         rating = []
         books = db.session.execute(db.select(BooksTable)).scalars()
-        if books:
+        n = db.session.query(BooksTable).count() 
+        
+        if n> 0:
                 
             for book in books:
                 requests.append(book.requests)
@@ -519,7 +525,7 @@ def BooksAnalytics(): #ALL BOOKS
             visits = np.array(visits)
             rating = np.array(rating)
 
-            n = db.session.query(BooksTable).count() 
+            
                 
                 
             plt.style.use('dark_background') 
@@ -578,7 +584,8 @@ def BooksAnalytics(): #ALL BOOKS
 @login_required
 def SectionsAnalytics():
     sections = db.session.execute(db.select(SectionTable)).scalars()
-    if sections:
+    n = db.session.query(SectionTable).count() 
+    if n>0:
         names = []
         visits = []
         requests = []
@@ -680,6 +687,9 @@ def ModifyUser(user_id):
         else:
 
             user = Users.query.filter_by(id = user_id).first()
+            if(not user):
+                flash(f"User with ID:{user_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
             Profile_image = None
             try:
                 Profile_image = b64encode(user.profile_pic).decode("utf-8")
@@ -712,6 +722,9 @@ def ModifyUser(user_id):
         form = Controller_Forms.EditUserForm()
         if form.validate_on_submit():
             user = Users.query.filter_by(id = current_user.id).first()
+            if(not user):
+                flash(f"Something went wrong",category="danger")
+                return redirect(url_for("Home"))
             if form.name.data:
                 user.name = form.name.data
             if form.username.data:
@@ -752,7 +765,16 @@ def ModifyUser(user_id):
 def ReturnBook(book_id):
     form = Controller_Forms.UploadFeedBackForm()
     if request.method == "GET":
+        book = BooksTable.query.filter_by(id = book_id).first()
+        if(not book):
+                flash(f"Book with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        relation = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        if(len(list(relation)) < 1):
+                flash(f"Can't return something you never owned",category="danger")
+                return redirect(url_for("Home"))
         db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        
         db.session.commit()
         flash("Thanks for returning the Book",category="success")
         return render_template("UserFeedback.html",form=form,book_id = book_id)
@@ -769,13 +791,14 @@ def ReturnBook(book_id):
                                   )
         db.session.add(feedback)
         book = BooksTable.query.filter_by(id = book_id).first()
+        if(not book):
+                flash(f"Book with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         n = Feedbacks.query.filter_by(book_id = book_id).count()
         ratings = Feedbacks.query.filter_by(book_id = book_id).all()
         sum = 0
         for rating in ratings:
             sum += rating.rating
-
-
         if n == 0:
             book.rating = form.rating.data 
         else:
@@ -795,11 +818,19 @@ def ReturnBook(book_id):
 @login_required
 @app.route("/Taken/<int:book_id>",methods = ["GET","POST"])
 def TakeBook(book_id):
-    db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
-    db.session.commit()
-    flash("You have exceeded the time Limit for you Book",category="warning")
-    return redirect(url_for("ModifyUser",user_id = current_user.id))
+    if current_user.role != "Administrator":
+        relation = db.session.execute(users_books.select().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        if(len(list(relation)) < 1):
+                flash(f"Can't return something you never owned",category="danger")
+                return redirect(url_for("Home"))
+        db.session.execute(users_books.delete().where(users_books.columns.user_id == current_user.id).where(users_books.columns.book_id==book_id))
+        db.session.commit()
+        flash("You have exceeded the time Limit for you Book",category="warning")
+        return redirect(url_for("ModifyUser",user_id = current_user.id))
 
+    else:
+        flash("Mr Admin, Please know the application better", category="warning")
+        return redirect(url_for("Home"))
 
 
 
@@ -838,11 +869,6 @@ def DeleteUser(user_id):
             db.session.delete(user)
             db.session.commit()
             return redirect(url_for("index"))
-
-
-
-
-
 
 #--------------------------------------------------------------------------------------
 #SECTIONS-------------------------------------------------------------------------------
@@ -898,6 +924,9 @@ Lvl 2
 def Section(section_id):
     form = Controller_Forms.EditSectionForm()
     section = SectionTable.query.filter_by(id = section_id).first()
+    if(not section):
+            flash(f"Section with ID {section_id} does not exist",category="danger")
+            return redirect(url_for("Home"))
     section.visits += 1
     section.verified = True
     db.session.commit() 
@@ -937,48 +966,75 @@ def Section(section_id):
 @app.route("/Sections/AddBook/Section_<int:section_id> Book_<book_id>" , methods = ['GET' , 'POST'])
 @login_required
 def AddBookToSection(section_id, book_id):
-    book = BooksTable.query.filter_by(id = book_id).first()
-    if (book.section_id == section_id):
-        flash("Book is already in this section",category="warning")
+    if current_user.role == "Administrator":
+        book = BooksTable.query.filter_by(id = book_id).first()
+        section = SectionTable.query.filter_by(id = section_id).first()
+        if(not section):
+                flash(f"Section with ID {section_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        if(not book):
+                flash(f"Book with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        if (book.section_id == section_id):
+            flash("Book is already in this section",category="warning")
+            return redirect(url_for("Section",section_id = section_id))
+        book.section_id = section_id
+        book.verified = True
+        db.session.commit()
+        flash("Book Has successfully been added",category="success")
         return redirect(url_for("Section",section_id = section_id))
-    book.section_id = section_id
-    book.verified = True
-    db.session.commit()
-    flash("Book Has successfully been added",category="success")
-    return redirect(url_for("Section",section_id = section_id))
+    else:
+        flash("Why are you here?",category="danger")
+        return redirect(url_for("Home"))
+
 
 #-----------------------------------------------------------------------------
 @app.route("/Sections/RemoveBook/Section_<int:section_id> Book_<book_id>" , methods = ['GET' , 'POST'])
 @login_required
 def RemoveBookFromSection(section_id, book_id):
-    book = BooksTable.query.filter_by(id = book_id).first()
-    if (book.section_id == None):
-        flash("Book is already not in any assigned Genre",category="warning")
+    if current_user.role == "Administrator":
+        book = BooksTable.query.filter_by(id = book_id).first()
+        section = SectionTable.query.filter_by(id = section_id).first()
+        if(not section):
+                flash(f"Section with ID {section_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        if(not book):
+                flash(f"Book with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+        if (book.section_id == None):
+            flash("Book is already not in any assigned Genre",category="warning")
+            return redirect(url_for("Section",section_id = section_id))
+        book.section_id = None
+        book.verified = True
+        db.session.commit()
+        flash("Book Has successfully been Removed",category="success")
         return redirect(url_for("Section",section_id = section_id))
-    book.section_id = None
-    book.verified = True
-    db.session.commit()
-    flash("Book Has successfully been Removed",category="success")
-    return redirect(url_for("Section",section_id = section_id))
-
+    else:
+        flash("Why are you here?",category="danger")
+        return redirect(url_for("Home"))
 
 @app.route("/Sections/DELETE <int:section_id>" , methods = ['GET' , 'POST'])
 @login_required
 def DeleteSection(section_id):
     if (current_user.role == "Administrator"):
         section = SectionTable.query.filter_by(id = section_id).first()
+        if(not section):
+                flash(f"Section with ID {section_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         try:
             books = BooksTable.query.filter_by(section_id = section_id).all()
             for book in books:
                 book.section_id = None
         except:
-            flash("SOME ERROR IN DELTETING SECTION",category = "warning")
+            flash("SOME ERROR IN DELETING SECTION",category = "warning")
         db.session.delete(section)
         db.session.commit()
         flash(f"Section has been deleted",category="danger")
         return redirect(url_for("Sections"))
 
-
+    else:
+        flash("Why are you here?",category="danger")
+        return redirect(url_for("Home"))
 
 #--------------------------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -993,12 +1049,6 @@ def Books():
     books = db.session.execute(db.select(BooksTable)).scalars()
     if current_user.role == "Administrator":
         form = Controller_Forms.UploadBookForm()
-        """orderFilter = request.args.get("filter") #makesure correct filter displayes as buttons
-        try:
-            books = db.engine.execute(f"SELECT * FROM books ORDERBY {orderFilter} ;")
-        except:
-            pass"""
-        
         if form.validate_on_submit():
             content1=form.content.data.read()
             section_id = None   
@@ -1035,6 +1085,11 @@ def Book(book_id):
         form = Controller_Forms.EditBookForm()
         if form.validate_on_submit():
             book = BooksTable.query.filter_by(id = book_id).first()
+            if(not book):
+                flash(f"Section with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
+            if form.title.data:
+                book.title = form.title.data
             if form.author.data:
                 book.author = form.author.data
             if form.description.data:
@@ -1060,6 +1115,9 @@ def Book(book_id):
 
             
             book = BooksTable.query.filter_by( id = book_id).first()
+            if(not book):
+                flash(f"Section with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
             book_pic = None
             try:
                 book_pic = b64encode(book.book_pic).decode("utf-8")
@@ -1086,6 +1144,9 @@ def Book(book_id):
     else:
         
         book = BooksTable.query.filter_by( id = book_id).first()
+        if(not book):
+                flash(f"Section with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         book.visits = book.visits + 1
         book.verified = True
         section = SectionTable.query.filter_by(id = book.section_id).first()
@@ -1097,6 +1158,9 @@ def Book(book_id):
 
         
         book = BooksTable.query.filter_by( id = book_id).first()
+        if(not book):
+                flash(f"Section with ID {book_id} does not exist",category="danger")
+                return redirect(url_for("Home"))
         section = SectionTable.query.filter_by(id = book.section_id).first()
         if section:
             section = section.name
@@ -1129,8 +1193,7 @@ def ReadinBrowser(book_id):
         pdf = book.content
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = \
-            'inline; filename=%s.pdf' % 'yourfilename'
+        response.headers['Content-Disposition'] = f'inline; filename={book.title}.pdf'
         return response
 
 @login_required
@@ -1142,7 +1205,8 @@ def ReadFree(book_id):
 
 
     if pdf_blob[0:4] != b'%PDF':
-        flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian')
+        flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian',
+              category = "danger")
         return redirect(url_for("ModifyUser",user_id = current_user.id))
                 
     return render_template("Readfree.html",book_id = book_id)
@@ -1176,12 +1240,16 @@ def ReadBook(book_id):
 
             if dor > date.today():
                 book = BooksTable.query.filter_by(id = book_id).first()
+                if(not book):
+                    flash(f"Section with ID {book_id} does not exist",category="danger")
+                    return redirect(url_for("Home"))
                 
                 pdf_blob = book.content
 
 
                 if pdf_blob[0:4] != b'%PDF':
-                    flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian')
+                    flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian',
+                          category = "danger")
                     return redirect(url_for("ModifyUser",user_id = current_user.id))
                 
                 return render_template("ReadingBook.html",book_id = book_id)
@@ -1307,7 +1375,6 @@ class AnalyticsAPI(Resource):
                 "Logins":visits,
                 "Requests":requests 
                 }
-            stud_json = jsonify(Some_data)
             mydict = {}
             feedbacks = db.session.execute(db.select(Feedbacks)).scalars()
             for feedback in feedbacks:
@@ -1324,3 +1391,6 @@ api.add_resource(AnalyticsAPI, '/api/Analytics')
 api.add_resource(BookAPI, '/api/Book<book_id>')
 api.add_resource(SectionAPI, '/api/Section<section_id>')
 
+
+#------------------------------------------------------
+#-------------------------------------------------------

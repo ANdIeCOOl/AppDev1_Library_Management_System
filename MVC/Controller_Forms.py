@@ -43,8 +43,7 @@ class UploadBookForm(FlaskForm):
     title =  StringField("Title", validators=[DataRequired()])
     author =  StringField("Author", validators=[DataRequired()])
     description =  StringField("Description", validators=[DataRequired()])
-    content =   FileField("Content", validators=[FileRequired(),FileAllowed(['jpg', 'png','pdf'], 'Filesonly only!')])
-	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
+    content =   FileField("Content", validators=[FileRequired(),FileAllowed(['pdf'], 'PDFs only!')])
     submit = SubmitField("Upload Book")  
 	
 class EditBookForm(FlaskForm):
@@ -53,7 +52,6 @@ class EditBookForm(FlaskForm):
 	book_pic = FileField("Choose Book picture", validators=[FileAllowed(['jpg', 'png','jpeg'])])
 	description =  StringField("Description")
 	content =   FileField("Content", validators=[FileAllowed(['pdf'], 'Filesonly only!')])
-	# <form method = 'POST' enctype = multipart/form-data> ADD THIS TO FORM 
 	submit = SubmitField("Update Book")  
 	
 

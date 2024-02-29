@@ -68,7 +68,6 @@ app.config is configuration of the Flask app
 #secret key required for login manager
 app.config['SECRET_KEY'] = '123456'
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///LMS.db'
 
 #----------------------------------------------------------------------------------------
