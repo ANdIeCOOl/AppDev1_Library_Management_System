@@ -9,6 +9,7 @@ Genres
     </div>
     <div class="container">
         <div class="row">
+            {% if sections|length >1%}
             {% for section in sections %}
         
 
@@ -24,6 +25,10 @@ Genres
                 </div>
     
             {% endfor %}
+            {% else %}
+            <br><br>
+            <h1 style="color: white;" class="display-6">Nothing came up</h1>
+            {% endif %}
 
         </div>
     </div>

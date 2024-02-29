@@ -102,6 +102,9 @@ def index():
 
 @app.route("/login" , methods = ['GET','POST'])
 def login():
+    if current_user.is_authenticated:
+        flash("You cannot Login from this account",category = "warning")
+        return redirect(url_for("Home"))
 
     form = Controller_Forms.LoginForm()
     if form.validate_on_submit():
@@ -143,6 +146,9 @@ def logout():
 #REGISTRATION
 @app.route("/register" , methods = ['GET','POST'])
 def register():
+    if current_user.is_authenticated:
+        flash("You cannot Register from this account",category = "warning")
+        return redirect(url_for("Home"))
     form = Controller_Forms.RegisterForm()
     print(form.validate_on_submit())
 
@@ -634,9 +640,6 @@ def SectionsAnalytics():
 #--------------------------------------------------------------------------------------
 #ALL USERS ACCESS FOR ADMIN--------------------------------------------------
 #USER HOMEPAGE FOR USER
-"""
-LVL 1
-"""
 @login_required
 @app.route("/Users")
 def ALLUsers():
@@ -650,12 +653,12 @@ def ALLUsers():
 
 
 #--------
-"""
-LVL 2
-"""
 @login_required
 @app.route("/Users/<int:user_id>",methods = ["GET","POST"])
 def ModifyUser(user_id):
+    if current_user.is_anonymous:
+        flash("Please Register to Use the Application",category = "info")
+        return redirect(url_for("index"))
 
     if current_user.role == "Administrator":
         form = Controller_Forms.EditUserForm()
@@ -713,12 +716,7 @@ def ModifyUser(user_id):
     #------------
     #USER DASHBOARD
     else:#USER DASHBOARD
-        
-        """ if form.validate_on_submit: #UPDATE USER
-            pass
-        elif request.method == "POST":
-            pass
-        else:"""
+ 
         form = Controller_Forms.EditUserForm()
         if form.validate_on_submit():
             user = Users.query.filter_by(id = current_user.id).first()
@@ -832,12 +830,6 @@ def TakeBook(book_id):
         flash("Mr Admin, Please know the application better", category="warning")
         return redirect(url_for("Home"))
 
-
-
-
-
-
-
 #-----------
 #DELETE USER PROFILE
 #-------
@@ -857,6 +849,8 @@ def DeleteUser(user_id):
                 flash(f"Account has been deleted" , 
                 category="danger")
                 return redirect(url_for("ALLUsers"))
+            else:
+                return redirect(url_for("Home"))
         
         else:
             flash("What you sow you shall reap \n Your account has been deleted" , 
@@ -879,7 +873,7 @@ LVL 1
 @login_required
 def Sections():
     form = Controller_Forms.UploadSectionForm()
-    sections = db.session.execute(db.select(SectionTable)).scalars()
+    sections = db.session.execute(db.select(SectionTable)).scalars().all()
     if (current_user.role =="Administrator"):
         
         
@@ -1046,7 +1040,7 @@ def DeleteSection(section_id):
 @app.route("/Books" , methods = ['GET' , 'POST'])
 @login_required
 def Books():
-    books = db.session.execute(db.select(BooksTable)).scalars()
+    books = db.session.execute(db.select(BooksTable)).scalars().all()
     if current_user.role == "Administrator":
         form = Controller_Forms.UploadBookForm()
         if form.validate_on_submit():
@@ -1086,7 +1080,7 @@ def Book(book_id):
         if form.validate_on_submit():
             book = BooksTable.query.filter_by(id = book_id).first()
             if(not book):
-                flash(f"Section with ID {book_id} does not exist",category="danger")
+                flash(f"Book with ID {book_id} does not exist",category="danger")
                 return redirect(url_for("Home"))
             if form.title.data:
                 book.title = form.title.data
@@ -1116,7 +1110,7 @@ def Book(book_id):
             
             book = BooksTable.query.filter_by( id = book_id).first()
             if(not book):
-                flash(f"Section with ID {book_id} does not exist",category="danger")
+                flash(f"Book with ID {book_id} does not exist",category="danger")
                 return redirect(url_for("Home"))
             book_pic = None
             try:
@@ -1145,7 +1139,7 @@ def Book(book_id):
         
         book = BooksTable.query.filter_by( id = book_id).first()
         if(not book):
-                flash(f"Section with ID {book_id} does not exist",category="danger")
+                flash(f"Book with ID {book_id} does not exist",category="danger")
                 return redirect(url_for("Home"))
         book.visits = book.visits + 1
         book.verified = True
@@ -1159,7 +1153,7 @@ def Book(book_id):
         
         book = BooksTable.query.filter_by( id = book_id).first()
         if(not book):
-                flash(f"Section with ID {book_id} does not exist",category="danger")
+                flash(f"Book with ID {book_id} does not exist",category="danger")
                 return redirect(url_for("Home"))
         section = SectionTable.query.filter_by(id = book.section_id).first()
         if section:
@@ -1199,11 +1193,8 @@ def ReadinBrowser(book_id):
 @login_required
 @app.route('/ReadPDF4Free/<book_id>')  
 def ReadFree(book_id):
-    book = BooksTable.query.filter_by(id = book_id).first()
-                
+    book = BooksTable.query.filter_by(id = book_id).first()          
     pdf_blob = book.content
-
-
     if pdf_blob[0:4] != b'%PDF':
         flash('Missing the PDF file signature,Data is corrupted \n Please Remove this book and report it to the Librarian',
               category = "danger")
@@ -1241,7 +1232,7 @@ def ReadBook(book_id):
             if dor > date.today():
                 book = BooksTable.query.filter_by(id = book_id).first()
                 if(not book):
-                    flash(f"Section with ID {book_id} does not exist",category="danger")
+                    flash(f"Book with ID {book_id} does not exist",category="danger")
                     return redirect(url_for("Home"))
                 
                 pdf_blob = book.content
@@ -1280,6 +1271,8 @@ def DeleteBook(book_id):
                 flash(f"Book has been deleted" , 
                 category="danger")
                 return redirect(url_for("Books"))
+            else:
+                return redirect(url_for("Home"))
         
         else:
             flash(f"You cannot be here {current_user.name}" , 
@@ -1390,7 +1383,6 @@ api.add_resource(BooksAPI, '/api/Books')
 api.add_resource(AnalyticsAPI, '/api/Analytics')
 api.add_resource(BookAPI, '/api/Book<book_id>')
 api.add_resource(SectionAPI, '/api/Section<section_id>')
-
 
 #------------------------------------------------------
 #-------------------------------------------------------
