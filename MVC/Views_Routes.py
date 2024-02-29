@@ -103,7 +103,7 @@ def index():
 @app.route("/login" , methods = ['GET','POST'])
 def login():
     if current_user.is_authenticated:
-        flash("You cannot Login from this account",category = "warning")
+        flash("Log out to login from different account",category = "warning")
         return redirect(url_for("Home"))
 
     form = Controller_Forms.LoginForm()
