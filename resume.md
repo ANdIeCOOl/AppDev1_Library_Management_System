@@ -46,7 +46,16 @@ ISC Commerce\
 8.6 GPA cumulative (before last term it was 9.2)
 
 ---
-
+### **Certifications & Courses**  
+- Nothing great.
+- ICSE 78%
+- ISC Commerce 60
+- BA Journalism, Economics English dropout (Here is the story starts . Realised I wanted to do Science)
+- ISC Science dropout(couldn't do science and commerce, and some mental struggles) Actually didn't give up though
+- Jee 96th percentile (35000 rank) (but i had no science background(NIOS didn't count, even though they said it would) )
+- BS in Data Science and Artificial intelligence (Here the story picks up nice momentum. Defintely Nobel prize is in the cards. Believe it!)
+  
+---
 ### **Technical Skills**
 
 - **Programming Languages:** Python, Java, JavaScript, Shell, C (learning)
