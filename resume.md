@@ -49,10 +49,10 @@ ISC Commerce\
 ### **Certifications & Courses**  
 - Nothing great.
 - ICSE 78%
-- ISC Commerce 60
-- BA Journalism, Economics English dropout (Here is the story starts . Realised I wanted to do Science)
-- ISC Science dropout(couldn't do science and commerce, and some mental struggles) Actually didn't give up though
-- Jee 96th percentile (35000 rank) (but i had no science background(NIOS didn't count, even though they said it would) )
+- ISC Commerce 60%
+- BA Journalism, Economics English dropout (Here the story starts . Realised I wanted to do Science)
+- ISC Science dropout(couldn't do science and commerce, and some mental struggles). Actually didn't give up though, WIN IS A WIN
+- Jee 96th percentile (35000 rank) (but i had no science background(NIOS didn't count, even though they said it would *womp womp*) )
 - BS in Data Science and Artificial intelligence (Here the story picks up nice momentum. Defintely Nobel prize is in the cards. Believe it!)
   
 ---
